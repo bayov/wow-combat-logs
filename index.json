@@ -1,0 +1,970 @@
+{
+ "anniversary/Split-WoWCombatLog-082726_175202-2026-08-27T145202.204Z.txt.xz": {
+  "start": "2026-08-27T17:52:02",
+  "end": "2026-08-27T22:00:50",
+  "hours": 4.15,
+  "build": "2.5.6",
+  "log_version": "9",
+  "lines": 733271,
+  "characters": [
+   "Bayoon-Spineshatter-EU"
+  ],
+  "players_seen": 35,
+  "zones": {
+   "Karazhan": 96,
+   "Serpentshrine Cavern": 67,
+   "Tempest Keep": 59,
+   "Shattrath City": 25,
+   "Deadwind Pass": 1
+  },
+  "encounters": [
+   {
+    "name": "Attumen the Huntsman",
+    "id": 652,
+    "kill": true,
+    "start": "2026-08-27T18:17:42",
+    "seconds": 74
+   },
+   {
+    "name": "Moroes",
+    "id": 653,
+    "kill": false,
+    "start": "2026-08-27T18:22:32",
+    "seconds": 35
+   },
+   {
+    "name": "Moroes",
+    "id": 653,
+    "kill": true,
+    "start": "2026-08-27T18:24:55",
+    "seconds": 60
+   },
+   {
+    "name": "Maiden of Virtue",
+    "id": 654,
+    "kill": false,
+    "start": "2026-08-27T18:32:31",
+    "seconds": 65
+   },
+   {
+    "name": "Maiden of Virtue",
+    "id": 654,
+    "kill": true,
+    "start": "2026-08-27T18:36:14",
+    "seconds": 51
+   },
+   {
+    "name": "Opera Hall",
+    "id": 655,
+    "kill": true,
+    "start": "2026-08-27T18:42:46",
+    "seconds": 130
+   },
+   {
+    "name": "Nightbane",
+    "id": 662,
+    "kill": true,
+    "start": "2026-08-27T18:48:04",
+    "seconds": 286
+   },
+   {
+    "name": "The Curator",
+    "id": 656,
+    "kill": true,
+    "start": "2026-08-27T18:59:09",
+    "seconds": 75
+   },
+   {
+    "name": "Shade of Aran",
+    "id": 658,
+    "kill": true,
+    "start": "2026-08-27T19:09:44",
+    "seconds": 74
+   },
+   {
+    "name": "Chess Event",
+    "id": 660,
+    "kill": true,
+    "start": "2026-08-27T19:16:12",
+    "seconds": 81
+   },
+   {
+    "name": "Prince Malchezaar",
+    "id": 661,
+    "kill": false,
+    "start": "2026-08-27T19:21:41",
+    "seconds": 92
+   },
+   {
+    "name": "Prince Malchezaar",
+    "id": 661,
+    "kill": true,
+    "start": "2026-08-27T19:26:15",
+    "seconds": 137
+   },
+   {
+    "name": "Hydross the Unstable",
+    "id": 623,
+    "kill": false,
+    "start": "2026-08-27T20:01:59",
+    "seconds": 140
+   },
+   {
+    "name": "The Lurker Below",
+    "id": 624,
+    "kill": true,
+    "start": "2026-08-27T20:12:41",
+    "seconds": 151
+   },
+   {
+    "name": "Morogrim Tidewalker",
+    "id": 627,
+    "kill": false,
+    "start": "2026-08-27T20:17:49",
+    "seconds": 3
+   },
+   {
+    "name": "Morogrim Tidewalker",
+    "id": 627,
+    "kill": true,
+    "start": "2026-08-27T20:21:48",
+    "seconds": 176
+   },
+   {
+    "name": "Leotheras the Blind",
+    "id": 625,
+    "kill": true,
+    "start": "2026-08-27T20:33:35",
+    "seconds": 186
+   },
+   {
+    "name": "Fathom-Lord Karathress",
+    "id": 626,
+    "kill": true,
+    "start": "2026-08-27T20:39:22",
+    "seconds": 102
+   },
+   {
+    "name": "Lady Vashj",
+    "id": 628,
+    "kill": true,
+    "start": "2026-08-27T20:45:18",
+    "seconds": 433
+   },
+   {
+    "name": "Al'ar",
+    "id": 730,
+    "kill": true,
+    "start": "2026-08-27T21:14:43",
+    "seconds": 289
+   },
+   {
+    "name": "Void Reaver",
+    "id": 731,
+    "kill": true,
+    "start": "2026-08-27T21:30:45",
+    "seconds": 163
+   },
+   {
+    "name": "High Astromancer Solarian",
+    "id": 732,
+    "kill": true,
+    "start": "2026-08-27T21:41:21",
+    "seconds": 118
+   },
+   {
+    "name": "Kael'thas Sunstrider",
+    "id": 733,
+    "kill": true,
+    "start": "2026-08-27T21:52:39",
+    "seconds": 447
+   }
+  ],
+  "creatures_died": 983,
+  "our_kills": 64,
+  "our_deaths": 9,
+  "raw_bytes": 207544682,
+  "xz_bytes": 9850872,
+  "sha256": "ee7ecf75bce957bdd7003ffd45f6e0ce71d77613e3760ea7c3578eff91e32363"
+ },
+ "anniversary/Split-WoWCombatLog-082926_151957-2026-08-29T180954.172Z.txt.xz": {
+  "start": "2026-08-29T21:09:54",
+  "end": "2026-08-30T02:26:17",
+  "hours": 5.27,
+  "build": "2.5.6",
+  "log_version": "9",
+  "lines": 1205070,
+  "characters": [
+   "Bayoon-Spineshatter-EU"
+  ],
+  "players_seen": 29,
+  "zones": {
+   "Black Temple": 197,
+   "Hyjal Summit": 95,
+   "Shattrath City": 20,
+   "Shadowmoon Valley": 4
+  },
+  "encounters": [
+   {
+    "name": "Rage Winterchill",
+    "id": 618,
+    "kill": true,
+    "start": "2026-08-29T21:30:46",
+    "seconds": 147
+   },
+   {
+    "name": "Anetheron",
+    "id": 619,
+    "kill": true,
+    "start": "2026-08-29T21:42:10",
+    "seconds": 110
+   },
+   {
+    "name": "Kaz'rogal",
+    "id": 620,
+    "kill": true,
+    "start": "2026-08-29T22:00:47",
+    "seconds": 142
+   },
+   {
+    "name": "Azgalor",
+    "id": 621,
+    "kill": true,
+    "start": "2026-08-29T22:15:55",
+    "seconds": 126
+   },
+   {
+    "name": "Archimonde",
+    "id": 622,
+    "kill": false,
+    "start": "2026-08-29T22:25:14",
+    "seconds": 100
+   },
+   {
+    "name": "Archimonde",
+    "id": 622,
+    "kill": false,
+    "start": "2026-08-29T22:33:25",
+    "seconds": 102
+   },
+   {
+    "name": "Archimonde",
+    "id": 622,
+    "kill": true,
+    "start": "2026-08-29T22:40:39",
+    "seconds": 223
+   },
+   {
+    "name": "High Warlord Naj'entus",
+    "id": 601,
+    "kill": true,
+    "start": "2026-08-29T23:21:16",
+    "seconds": 150
+   },
+   {
+    "name": "Supremus",
+    "id": 602,
+    "kill": true,
+    "start": "2026-08-29T23:34:23",
+    "seconds": 186
+   },
+   {
+    "name": "Shade of Akama",
+    "id": 603,
+    "kill": true,
+    "start": "2026-08-29T23:52:14",
+    "seconds": 88
+   },
+   {
+    "name": "Reliquary of Souls",
+    "id": 606,
+    "kill": false,
+    "start": "2026-08-30T00:00:53",
+    "seconds": 16
+   },
+   {
+    "name": "Teron Gorefiend",
+    "id": 604,
+    "kill": false,
+    "start": "2026-08-30T00:10:03",
+    "seconds": 178
+   },
+   {
+    "name": "Teron Gorefiend",
+    "id": 604,
+    "kill": true,
+    "start": "2026-08-30T00:18:22",
+    "seconds": 162
+   },
+   {
+    "name": "Reliquary of Souls",
+    "id": 606,
+    "kill": false,
+    "start": "2026-08-30T00:53:08",
+    "seconds": 362
+   },
+   {
+    "name": "Reliquary of Souls",
+    "id": 606,
+    "kill": true,
+    "start": "2026-08-30T01:03:36",
+    "seconds": 337
+   },
+   {
+    "name": "Gurtogg Bloodboil",
+    "id": 605,
+    "kill": false,
+    "start": "2026-08-30T01:18:05",
+    "seconds": 133
+   },
+   {
+    "name": "Gurtogg Bloodboil",
+    "id": 605,
+    "kill": false,
+    "start": "2026-08-30T01:24:40",
+    "seconds": 177
+   },
+   {
+    "name": "Gurtogg Bloodboil",
+    "id": 605,
+    "kill": false,
+    "start": "2026-08-30T01:32:34",
+    "seconds": 295
+   },
+   {
+    "name": "Gurtogg Bloodboil",
+    "id": 605,
+    "kill": true,
+    "start": "2026-08-30T01:41:57",
+    "seconds": 239
+   },
+   {
+    "name": "Mother Shahraz",
+    "id": 607,
+    "kill": false,
+    "start": "2026-08-30T02:04:30",
+    "seconds": 256
+   },
+   {
+    "name": "Mother Shahraz",
+    "id": 607,
+    "kill": false,
+    "start": "2026-08-30T02:14:47",
+    "seconds": 114
+   },
+   {
+    "name": "Mother Shahraz",
+    "id": 607,
+    "kill": false,
+    "start": "2026-08-30T02:18:28",
+    "seconds": 105
+   },
+   {
+    "name": "Mother Shahraz",
+    "id": 607,
+    "kill": false,
+    "start": "2026-08-30T02:21:54",
+    "seconds": 162
+   }
+  ],
+  "creatures_died": 1034,
+  "our_kills": 33,
+  "our_deaths": 15,
+  "raw_bytes": 350822456,
+  "xz_bytes": 16404428,
+  "sha256": "c0f84bfd288f50bfdce611b08d58421a5334eeb5ddfe79374b595f8529601c87"
+ },
+ "classic_beta/WoWCombatLog-101026_135035.txt.xz": {
+  "start": "2026-10-10T13:50:35",
+  "end": "2026-10-10T13:51:10",
+  "hours": 0.01,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 55,
+  "characters": [
+   "Bayov-ClassicBetaPvP-"
+  ],
+  "players_seen": 2,
+  "zones": {},
+  "encounters": [],
+  "creatures_died": 1,
+  "our_kills": 1,
+  "our_deaths": 0,
+  "raw_bytes": 14630,
+  "xz_bytes": 1580,
+  "sha256": "51f433b2778e0c3839ab291d0a6f710cd0f5cc4c193bbebbdea5a173f8baed19"
+ },
+ "classic_beta/WoWCombatLog-101026_150733.txt.xz": {
+  "start": "2026-10-10T15:07:33",
+  "end": "2026-10-10T22:16:13",
+  "hours": 7.14,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 57938,
+  "characters": [
+   "Bayov-ClassicBetaPvP-"
+  ],
+  "players_seen": 604,
+  "zones": {
+   "Thousand Needles": 412,
+   "Thunder Bluff": 11,
+   "Tanaris": 3,
+   "The Barrens": 1,
+   "Mulgore": 1
+  },
+  "encounters": [],
+  "creatures_died": 291,
+  "our_kills": 161,
+  "our_deaths": 3,
+  "raw_bytes": 15281223,
+  "xz_bytes": 731264,
+  "sha256": "f9b4851bbed3e958abb19c5252a78ac50b4f28d0c3b900c1f14589f13de406e2"
+ },
+ "classic_beta/WoWCombatLog-101026_221851.txt.xz": {
+  "start": "2026-10-10T22:18:51",
+  "end": "2026-10-10T23:08:32",
+  "hours": 0.83,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 20735,
+  "characters": [
+   "Bayov-ClassicBetaPvP-"
+  ],
+  "players_seen": 363,
+  "zones": {
+   "Thousand Needles": 28,
+   "Thunder Bluff": 22
+  },
+  "encounters": [],
+  "creatures_died": 25,
+  "our_kills": 15,
+  "our_deaths": 0,
+  "raw_bytes": 4825962,
+  "xz_bytes": 205772,
+  "sha256": "3cd172ae930040845edd11289e1522ed288cd9c8975fd229e1d81ff46932a30c"
+ },
+ "classic_beta/WoWCombatLog-101026_232548.txt.xz": {
+  "start": "2026-10-10T23:25:48",
+  "end": "2026-10-11T01:24:08",
+  "hours": 1.97,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 77164,
+  "characters": [
+   "Bayov-ClassicBetaPvP-"
+  ],
+  "players_seen": 1053,
+  "zones": {
+   "Thousand Needles": 89,
+   "Thunder Bluff": 29
+  },
+  "encounters": [],
+  "creatures_died": 95,
+  "our_kills": 60,
+  "our_deaths": 1,
+  "raw_bytes": 18051497,
+  "xz_bytes": 729704,
+  "sha256": "2ef4b1d7f06bf98f5f50e88d9b89954221f31f529312b6820ec316d9822acedb"
+ },
+ "classic_beta/WoWCombatLog-101126_202029.txt.xz": {
+  "start": "2026-10-11T20:20:29",
+  "end": "2026-10-12T02:41:39",
+  "hours": 6.35,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 60213,
+  "characters": [
+   "Bayov-ClassicBetaPvP-"
+  ],
+  "players_seen": 482,
+  "zones": {
+   "Durotar": 193,
+   "The Barrens": 171,
+   "Orgrimmar": 17
+  },
+  "encounters": [],
+  "creatures_died": 479,
+  "our_kills": 314,
+  "our_deaths": 0,
+  "raw_bytes": 15657690,
+  "xz_bytes": 798536,
+  "sha256": "602c5255a1cfcf0fcc7a119b2853b4aba22e4f9bb165938554333c3a047a023f"
+ },
+ "classic_beta/WoWCombatLog-101426_202214.txt.xz": {
+  "start": "2026-10-14T20:22:14",
+  "end": "2026-10-14T20:23:05",
+  "hours": 0.01,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 298,
+  "characters": [],
+  "players_seen": 17,
+  "zones": {},
+  "encounters": [],
+  "creatures_died": 5,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 81282,
+  "xz_bytes": 5044,
+  "sha256": "524f4a5f6cbc3acb55db4383b7616c271be1c77cecf610e5597d766663ce6908"
+ },
+ "classic_beta/WoWCombatLog-101526_084724.txt.xz": {
+  "start": "2026-10-15T08:47:24",
+  "end": "2026-10-15T08:53:46",
+  "hours": 0.11,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 415,
+  "characters": [],
+  "players_seen": 14,
+  "zones": {
+   "Durotar": 6
+  },
+  "encounters": [],
+  "creatures_died": 5,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 112363,
+  "xz_bytes": 6620,
+  "sha256": "dc0854735a21175cc6d56b6151da79aa4881bb6963eca0d0f4f6f769bb362189"
+ },
+ "classic_beta/WoWCombatLog-101526_090435.txt.xz": {
+  "start": "2026-10-15T09:04:35",
+  "end": "2026-10-15T10:09:39",
+  "hours": 1.08,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 2395,
+  "characters": [
+   "Bayov-ClassicBetaPvE2-"
+  ],
+  "players_seen": 48,
+  "zones": {
+   "Durotar": 65
+  },
+  "encounters": [],
+  "creatures_died": 27,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 671277,
+  "xz_bytes": 34260,
+  "sha256": "f890231b6f36a87e15b04863949f12ffc2ab7e604579a9c6c80b68b6891e6560"
+ },
+ "classic_beta/WoWCombatLog-101526_102023.txt.xz": {
+  "start": "2026-10-15T10:20:23",
+  "end": "2026-10-15T13:49:58",
+  "hours": 3.49,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 40808,
+  "characters": [
+   "Bayov-ClassicBetaPvE2-"
+  ],
+  "players_seen": 286,
+  "zones": {
+   "Durotar": 210
+  },
+  "encounters": [],
+  "creatures_died": 409,
+  "our_kills": 6,
+  "our_deaths": 0,
+  "raw_bytes": 11334853,
+  "xz_bytes": 572340,
+  "sha256": "32cd317435ceea30356149f07b0addeaf35888632a5d2421e1c908bb689ae019"
+ },
+ "classic_beta/WoWCombatLog-101526_213645.txt.xz": {
+  "start": "2026-10-15T21:36:45",
+  "end": "2026-10-15T23:17:30",
+  "hours": 1.68,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 17273,
+  "characters": [
+   "Bayov-ClassicBetaPvE2-"
+  ],
+  "players_seen": 152,
+  "zones": {
+   "Durotar": 101
+  },
+  "encounters": [],
+  "creatures_died": 137,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 4819877,
+  "xz_bytes": 242756,
+  "sha256": "679b32a5afd859cf492a3b2e3fa73852c5d4ef991d890f687f635b4ef410ea9d"
+ },
+ "classic_beta/WoWCombatLog-101626_114106.txt.xz": {
+  "start": "2026-10-16T11:41:06",
+  "end": "2026-10-16T15:31:57",
+  "hours": 3.85,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 26133,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 167,
+  "zones": {
+   "Durotar": 231
+  },
+  "encounters": [],
+  "creatures_died": 249,
+  "our_kills": 5,
+  "our_deaths": 0,
+  "raw_bytes": 7483105,
+  "xz_bytes": 398812,
+  "sha256": "adbb23855072fa6bbb100894b1e753758eb8aa67610038b963876dc780490cda"
+ },
+ "classic_beta/WoWCombatLog-101626_154815.txt.xz": {
+  "start": "2026-10-16T15:48:15",
+  "end": "2026-10-16T16:45:52",
+  "hours": 0.96,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 12589,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 59,
+  "zones": {
+   "Durotar": 58
+  },
+  "encounters": [],
+  "creatures_died": 199,
+  "our_kills": 15,
+  "our_deaths": 0,
+  "raw_bytes": 3743162,
+  "xz_bytes": 195236,
+  "sha256": "305ed71d1bf30fe2bf78955c2dfd12e13aab5fd068dacd27b6e8ea16c0d0d489"
+ },
+ "classic_beta/WoWCombatLog-101626_165126.txt.xz": {
+  "start": "2026-10-16T16:51:26",
+  "end": "2026-10-16T23:59:15",
+  "hours": 7.13,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 69256,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 330,
+  "zones": {
+   "Durotar": 428
+  },
+  "encounters": [],
+  "creatures_died": 834,
+  "our_kills": 74,
+  "our_deaths": 1,
+  "raw_bytes": 20181762,
+  "xz_bytes": 1079228,
+  "sha256": "df7545f42dc1bb4636d9f47ea7dee9b0f15a83d8a553a39e050b0f2fb7446a7b"
+ },
+ "classic_beta/WoWCombatLog-101726_000032.txt.xz": {
+  "start": "2026-10-17T00:00:32",
+  "end": "2026-10-17T00:30:40",
+  "hours": 0.5,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 572,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 6,
+  "zones": {
+   "Durotar": 30
+  },
+  "encounters": [],
+  "creatures_died": 11,
+  "our_kills": 6,
+  "our_deaths": 0,
+  "raw_bytes": 164990,
+  "xz_bytes": 9120,
+  "sha256": "98ac8be415a557fa4c4188bb6badeccff41df87ee125af4452b6ea01f9af2869"
+ },
+ "classic_beta/WoWCombatLog-101726_003853.txt.xz": {
+  "start": "2026-10-17T00:38:53",
+  "end": "2026-10-17T03:11:05",
+  "hours": 2.54,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 8545,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 63,
+  "zones": {
+   "Durotar": 152
+  },
+  "encounters": [],
+  "creatures_died": 79,
+  "our_kills": 9,
+  "our_deaths": 0,
+  "raw_bytes": 2433368,
+  "xz_bytes": 129744,
+  "sha256": "46cf487c5eadea41aa93a71f9bd781d68938d3d5a015c254c765a290a10f0e2c"
+ },
+ "classic_beta/WoWCombatLog-101726_093914.txt.xz": {
+  "start": "2026-10-17T09:39:14",
+  "end": "2026-10-17T10:54:34",
+  "hours": 1.26,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 2183,
+  "characters": [],
+  "players_seen": 23,
+  "zones": {
+   "Durotar": 75
+  },
+  "encounters": [],
+  "creatures_died": 13,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 654901,
+  "xz_bytes": 33508,
+  "sha256": "4b4c0508f075414926cd7726a23665c3ef2a59ea28b1137f80f2863978de50d3"
+ },
+ "classic_beta/WoWCombatLog-101726_154022.txt.xz": {
+  "start": "2026-10-17T15:40:22",
+  "end": "2026-10-17T21:45:40",
+  "hours": 6.09,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 18968,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 152,
+  "zones": {
+   "Durotar": 365
+  },
+  "encounters": [],
+  "creatures_died": 119,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 5530998,
+  "xz_bytes": 279192,
+  "sha256": "21d9bc193ad902210073c473a784571692a8bd76e81cf2d405d8b7874c3d1e4e"
+ },
+ "classic_beta/WoWCombatLog-101826_191142.txt.xz": {
+  "start": "2026-10-18T19:11:42",
+  "end": "2026-10-18T20:19:52",
+  "hours": 1.14,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 3948,
+  "characters": [],
+  "players_seen": 37,
+  "zones": {
+   "Durotar": 68
+  },
+  "encounters": [],
+  "creatures_died": 26,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 1148280,
+  "xz_bytes": 58452,
+  "sha256": "39b1c226cb9d2a663ad7253dd25005232629910f5505e949a65a50ffc78564ac"
+ },
+ "classic_beta/WoWCombatLog-101826_203958.txt.xz": {
+  "start": "2026-10-18T20:39:58",
+  "end": "2026-10-18T21:39:13",
+  "hours": 0.99,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 4651,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 53,
+  "zones": {
+   "Durotar": 59
+  },
+  "encounters": [],
+  "creatures_died": 25,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 1367144,
+  "xz_bytes": 74344,
+  "sha256": "f3fb69db93e0f4c0ef6c5c6dca3a9544bd93bae77a1c22bcb9022f27951ac7f8"
+ },
+ "classic_beta/WoWCombatLog-101826_220304.txt.xz": {
+  "start": "2026-10-18T22:03:04",
+  "end": "2026-10-18T22:15:01",
+  "hours": 0.2,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 1332,
+  "characters": [],
+  "players_seen": 24,
+  "zones": {
+   "Durotar": 12
+  },
+  "encounters": [],
+  "creatures_died": 5,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 369027,
+  "xz_bytes": 20616,
+  "sha256": "93affbcbd9c901f5e2dbe95bfaf9c569d8527667710db462157ad778b3d02c08"
+ },
+ "classic_era/WoWCombatLog-071126_111443.txt.xz": {
+  "start": "2026-07-11T11:14:43",
+  "end": "2026-07-11T11:36:27",
+  "hours": 0.36,
+  "build": "1.15.8",
+  "log_version": "9",
+  "lines": 37064,
+  "characters": [
+   "Bayovfr-WildGrowth-EU"
+  ],
+  "players_seen": 10,
+  "zones": {
+   "Blackfathom Deeps": 22
+  },
+  "encounters": [
+   {
+    "name": "Baron Aquanis",
+    "id": 2694,
+    "kill": true,
+    "start": "2026-07-11T11:16:38",
+    "seconds": 32
+   },
+   {
+    "name": "Ghamoo-ra",
+    "id": 2697,
+    "kill": true,
+    "start": "2026-07-11T11:18:39",
+    "seconds": 57
+   },
+   {
+    "name": "Lady Sarevess",
+    "id": 2699,
+    "kill": true,
+    "start": "2026-07-11T11:21:02",
+    "seconds": 27
+   },
+   {
+    "name": "Gelihast",
+    "id": 2704,
+    "kill": true,
+    "start": "2026-07-11T11:24:47",
+    "seconds": 89
+   },
+   {
+    "name": "Lorgus Jett",
+    "id": 2710,
+    "kill": true,
+    "start": "2026-07-11T11:27:11",
+    "seconds": 64
+   },
+   {
+    "name": "Twilight Lord Kelris",
+    "id": 2825,
+    "kill": true,
+    "start": "2026-07-11T11:31:10",
+    "seconds": 59
+   },
+   {
+    "name": "Aku'mai",
+    "id": 2891,
+    "kill": true,
+    "start": "2026-07-11T11:33:48",
+    "seconds": 76
+   }
+  ],
+  "creatures_died": 181,
+  "our_kills": 6,
+  "our_deaths": 0,
+  "raw_bytes": 10210955,
+  "xz_bytes": 473196,
+  "sha256": "1a784752800735ffbbd836a91fb45cb815cb18b5d5cd1b334713d77c83ff8227"
+ },
+ "classic_era_ptr/WoWCombatLog-081626_200736.txt.xz": {
+  "start": "2026-08-16T20:07:36",
+  "end": "2026-08-16T22:21:34",
+  "hours": 2.23,
+  "build": "2.5.6",
+  "log_version": "9",
+  "lines": 488126,
+  "characters": [
+   "Bayoon-ClassicAnniversaryPTRRealm-"
+  ],
+  "players_seen": 25,
+  "zones": {
+   "Black Temple": 132,
+   "Shadowmoon Valley": 2
+  },
+  "encounters": [
+   {
+    "name": "High Warlord Naj'entus",
+    "id": 601,
+    "kill": true,
+    "start": "2026-08-16T20:19:34",
+    "seconds": 147
+   },
+   {
+    "name": "Supremus",
+    "id": 602,
+    "kill": true,
+    "start": "2026-08-16T20:33:46",
+    "seconds": 234
+   },
+   {
+    "name": "Shade of Akama",
+    "id": 603,
+    "kill": true,
+    "start": "2026-08-16T20:50:54",
+    "seconds": 108
+   },
+   {
+    "name": "Teron Gorefiend",
+    "id": 604,
+    "kill": false,
+    "start": "2026-08-16T21:11:16",
+    "seconds": 121
+   },
+   {
+    "name": "Teron Gorefiend",
+    "id": 604,
+    "kill": true,
+    "start": "2026-08-16T21:25:40",
+    "seconds": 157
+   },
+   {
+    "name": "Gurtogg Bloodboil",
+    "id": 605,
+    "kill": false,
+    "start": "2026-08-16T21:49:09",
+    "seconds": 105
+   },
+   {
+    "name": "Gurtogg Bloodboil",
+    "id": 605,
+    "kill": false,
+    "start": "2026-08-16T21:55:17",
+    "seconds": 218
+   },
+   {
+    "name": "Gurtogg Bloodboil",
+    "id": 605,
+    "kill": true,
+    "start": "2026-08-16T22:03:04",
+    "seconds": 183
+   },
+   {
+    "name": "Reliquary of Souls",
+    "id": 606,
+    "kill": false,
+    "start": "2026-08-16T22:13:52",
+    "seconds": 369
+   }
+  ],
+  "creatures_died": 328,
+  "our_kills": 18,
+  "our_deaths": 11,
+  "raw_bytes": 146265559,
+  "xz_bytes": 6742196,
+  "sha256": "597cde2e2988c26c1ae06ae9ede77555916d60ca2b47211008083d1028afe5e0"
+ }
+}
