@@ -808,6 +808,130 @@
   "xz_bytes": 20616,
   "sha256": "93affbcbd9c901f5e2dbe95bfaf9c569d8527667710db462157ad778b3d02c08"
  },
+ "classic_beta/WoWCombatLog-101826_221610.txt.xz": {
+  "start": "2026-10-18T22:16:10",
+  "end": "2026-10-19T01:31:37",
+  "hours": 3.26,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 16051,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 113,
+  "zones": {
+   "Durotar": 195
+  },
+  "encounters": [],
+  "creatures_died": 114,
+  "our_kills": 5,
+  "our_deaths": 0,
+  "raw_bytes": 4690741,
+  "xz_bytes": 245368,
+  "sha256": "28fba554db018f62d44a66aed137ba28b47330bf1e56cbf7dc72e8f9592197c8"
+ },
+ "classic_beta/WoWCombatLog-101926_013854.txt.xz": {
+  "start": "2026-10-19T01:38:54",
+  "end": "2026-10-19T01:53:17",
+  "hours": 0.24,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 928,
+  "characters": [],
+  "players_seen": 17,
+  "zones": {
+   "Durotar": 14
+  },
+  "encounters": [],
+  "creatures_died": 4,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 258754,
+  "xz_bytes": 15060,
+  "sha256": "9fc2bddb765a52f2bc80e64e49771189dbc1be057ec3ee9fdd103aecb089451b"
+ },
+ "classic_beta/WoWCombatLog-101926_183242.txt.xz": {
+  "start": "2026-10-19T18:32:42",
+  "end": "2026-10-20T03:14:45",
+  "hours": 8.7,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 25360,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 262,
+  "zones": {
+   "Durotar": 522
+  },
+  "encounters": [],
+  "creatures_died": 217,
+  "our_kills": 80,
+  "our_deaths": 0,
+  "raw_bytes": 7152288,
+  "xz_bytes": 365964,
+  "sha256": "44589b5fcdabf7a69313f2182229c809d10e425821e1ddf886888cf0e9c9b410"
+ },
+ "classic_beta/WoWCombatLog-102126_183258.txt.xz": {
+  "start": "2026-10-21T18:32:58",
+  "end": "2026-10-21T19:38:00",
+  "hours": 1.08,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 882,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 25,
+  "zones": {
+   "Durotar": 65
+  },
+  "encounters": [],
+  "creatures_died": 2,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 226256,
+  "xz_bytes": 12096,
+  "sha256": "6dabcfcdf5e7ae6f75c166c5cb15347a845056e313c2549548dad362a1fc4d30"
+ },
+ "classic_beta/WoWCombatLog-102226_133848.txt.xz": {
+  "start": "2026-10-22T13:38:48",
+  "end": "2026-10-22T14:29:46",
+  "hours": 0.85,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 1711,
+  "characters": [],
+  "players_seen": 31,
+  "zones": {
+   "Durotar": 51
+  },
+  "encounters": [],
+  "creatures_died": 4,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 431535,
+  "xz_bytes": 21236,
+  "sha256": "a09b36145db279e2f9bd85bafe65796b6265fb7813a8b8d7df2530c55b15e805"
+ },
+ "classic_beta/WoWCombatLog-102226_143041.txt.xz": {
+  "start": "2026-10-22T14:30:41",
+  "end": "2026-10-22T14:30:58",
+  "hours": 0.0,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 12,
+  "characters": [],
+  "players_seen": 1,
+  "zones": {},
+  "encounters": [],
+  "creatures_died": 0,
+  "our_kills": 0,
+  "our_deaths": 0,
+  "raw_bytes": 2150,
+  "xz_bytes": 468,
+  "sha256": "6d802ba29665c0d90b6829651b7172d59d4f513a0cc1529897a333e91ecd742e"
+ },
  "classic_era/WoWCombatLog-071126_111443.txt.xz": {
   "start": "2026-07-11T11:14:43",
   "end": "2026-07-11T11:36:27",
@@ -966,5 +1090,59 @@
   "raw_bytes": 146265559,
   "xz_bytes": 6742196,
   "sha256": "597cde2e2988c26c1ae06ae9ede77555916d60ca2b47211008083d1028afe5e0"
+ },
+ "forever/WoWCombatLog-102126_205408.txt.xz": {
+  "start": "2026-10-21T20:54:08",
+  "end": "2026-10-22T03:54:41",
+  "hours": 7.01,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 107834,
+  "characters": [
+   "Bayov-Oom-CAMWOWEU5Realm2PvP-EU"
+  ],
+  "players_seen": 999,
+  "zones": {
+   "Durotar": 305,
+   "Orgrimmar": 67,
+   "Ragefire Chasm": 40,
+   "The Barrens": 9
+  },
+  "encounters": [
+   {
+    "name": "Oggleflint",
+    "id": 2732,
+    "kill": true,
+    "start": "2026-10-22T02:14:29",
+    "seconds": 29
+   },
+   {
+    "name": "Taragaman the Hungerer",
+    "id": 2733,
+    "kill": true,
+    "start": "2026-10-22T02:26:04",
+    "seconds": 41
+   },
+   {
+    "name": "Bazzalan",
+    "id": 2735,
+    "kill": true,
+    "start": "2026-10-22T02:34:50",
+    "seconds": 28
+   },
+   {
+    "name": "Jergosh the Invoker",
+    "id": 2734,
+    "kill": true,
+    "start": "2026-10-22T02:35:58",
+    "seconds": 33
+   }
+  ],
+  "creatures_died": 1245,
+  "our_kills": 478,
+  "our_deaths": 8,
+  "raw_bytes": 31577773,
+  "xz_bytes": 1764588,
+  "sha256": "0aeb64cfa5b91a78675752d6229e5127c0f1acbb6d7f13e5787bf63101c573a2"
  }
 }
