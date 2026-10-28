@@ -5,7 +5,7 @@ file each time logging starts. They're large (a raid night is ~350 MB) but compr
 20 to 30 times with xz. We keep each one forever as `<client>/<name>.xz`, written once and
 never changed, so the git repo only ever grows by the new files.
 
-    python3 archive.py              archive every finished log not archived yet
+    python3 archive.py              archive every finished log not archived yet, and its threat
     python3 archive.py --dry-run    say what would be archived
     python3 archive.py --reindex    rebuild index.json and INDEX.md from the .xz files
 
@@ -19,6 +19,22 @@ sha256 with the raw file's.
 The index (index.json, and INDEX.md for reading) holds per log: the client and build, when
 it starts and ends, sizes, which of our characters appear, the zones with the minutes spent
 in each, boss encounters with kill or wipe, and death counts.
+
+THREAT. The combat log has no threat in it. BayovCore's Threat module records it in game:
+the raw threat the game reports for us, our pet and two group members on every mob we fight
+(bayovui/addons/BayovCore/Modules/Threat.lua in the WoW repo). It keeps each fight in the
+account's SavedVariables/BayovThreatLog.lua for 14 days. We copy each log's fights next to
+it, as `<client>/<log>.threat.jsonl.xz`: one fight per line, a JSON object with the fight's
+fields as the addon wrote them and its rows as `readings`, each
+[ms since the fight's `at`, mob, who, status, scaled %, raw %, threat], where mob and who
+are 1-based places in the fight's `mobs` and `who`, and a status of -1 (with nothing after
+it) means that player dropped off the mob's threat list. forever-sim's
+tools/combat_log/threat.py reads them against the log.
+
+A fight belongs to the log whose start and end hold its `at`. We only write a log's threat
+while its client isn't running, since the game writes BayovThreatLog.lua at logout, and
+only once: a log that got its threat (or was found to have none) is marked in the index.
+Logs that ended before the account started recording (`since` in the store) get nothing.
 """
 import argparse
 import hashlib
@@ -29,7 +45,10 @@ import re
 import subprocess
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import savedvars  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GAME = '/mnt/d/Gaming/World of Warcraft'
@@ -37,12 +56,18 @@ GAME = '/mnt/d/Gaming/World of Warcraft'
 # longer has gets archived from here.
 OLD = os.path.expanduser('~/forever-logs')
 INDEX = os.path.join(HERE, 'index.json')
+THREAT_STORE = 'BayovThreatLog.lua'
+THREAT_GLOBAL = 'BayovThreatLogDB'
+# How far outside a log's first and last line a fight's start may be and still be its.
+THREAT_SLACK = 5
 QUIET_SECONDS = 30 * 60
 LOG_NAME = re.compile(r'^(Split-)?WoWCombatLog-.*\.txt$')
 
 
 def clients():
     """The game clients that have a Logs folder: (short name, client dir)."""
+    if not os.path.isdir(GAME):
+        return
     for name in sorted(os.listdir(GAME)):
         logs = os.path.join(GAME, name, 'Logs')
         if re.fullmatch(r'_[a-z_]+_', name) and os.path.isdir(logs):
@@ -252,6 +277,154 @@ def compress(src, dst, chars, gz=False):
     return entry
 
 
+# =============================================================
+# Threat
+# =============================================================
+def threat_stores(root):
+    """(account, path) of every BayovThreatLog.lua under a client's WTF folder."""
+    accounts = os.path.join(root, 'WTF', 'Account')
+    if not os.path.isdir(accounts):
+        return
+    for acct in sorted(os.listdir(accounts)):
+        path = os.path.join(accounts, acct, 'SavedVariables', THREAT_STORE)
+        if os.path.isfile(path):
+            yield acct, path
+
+
+def parse_rows(text):
+    """A fight's rows string as lists of numbers."""
+    out = []
+    for line in (text or '').split('\n'):
+        if not line:
+            continue
+        row = []
+        for v in line.split(','):
+            n = float(v)
+            row.append(int(n) if n == int(n) else n)
+        out.append(row)
+    return out
+
+
+def local(s):
+    """'2026-10-28 21:03:04.123' or '2026-10-28T21:03:04' as a naive local datetime."""
+    s = s.replace('T', ' ')
+    return datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f' if '.' in s else '%Y-%m-%d %H:%M:%S')
+
+
+def threat_fights(root):
+    """Every fight the client's stores hold, oldest first, and the earliest `since`."""
+    fights, since = [], None
+    for acct, path in threat_stores(root):
+        db = savedvars.read(path).get(THREAT_GLOBAL) or {}
+        if isinstance(db.get('since'), str):
+            s = local(db['since'])
+            since = s if since is None or s < since else since
+        for f in db.get('fights') or []:
+            if not isinstance(f, dict) or not isinstance(f.get('at'), str):
+                continue
+            f = dict(f)
+            f['account'] = acct
+            f['readings'] = parse_rows(f.pop('rows', ''))
+            for k in ('who', 'mobs'):
+                if isinstance(f.get(k), dict):  # an empty Lua table
+                    f[k] = []
+            fights.append(f)
+    fights.sort(key=lambda f: f['at'])
+    return fights, since
+
+
+def threat_name(log):
+    """The threat file next to an archived log: X.txt.xz -> X.threat.jsonl.xz."""
+    return log[:-len('.txt.xz')] + '.threat.jsonl.xz'
+
+
+def threat_summary(fights, path):
+    others = []
+    for f in fights:
+        for w in f.get('who') or []:
+            if w.get('kind') == 'other':
+                label = '%s (%s)' % (w.get('name') or '?', (w.get('class') or '?').lower())
+                if label not in others:
+                    others.append(label)
+    return {
+        'fights': len(fights),
+        'readings': sum(len(f['readings']) for f in fights),
+        'mobs': len({m.get('guid') for f in fights for m in f.get('mobs') or []}),
+        'hidden': sum(f.get('secret') or 0 for f in fights),
+        'others': others,
+        'file': os.path.basename(path),
+        'xz_bytes': os.path.getsize(os.path.join(HERE, path)),
+    }
+
+
+def read_threat(path):
+    with lzma.open(os.path.join(HERE, path), 'rt', encoding='utf-8') as f:
+        return [json.loads(line) for line in f if line.strip()]
+
+
+def write_threat(path, fights):
+    """Writes the fights as JSON lines, xz-compressed, and checks it reads back the same."""
+    full = os.path.join(HERE, path)
+    tmp = full + '.part'
+    with lzma.open(tmp, 'wt', encoding='utf-8', preset=9) as f:
+        for fight in fights:
+            f.write(json.dumps(fight, ensure_ascii=False, separators=(',', ':')) + '\n')
+    with lzma.open(tmp, 'rt', encoding='utf-8') as f:
+        back = [json.loads(line) for line in f if line.strip()]
+    if back != json.loads(json.dumps(fights)):
+        os.remove(tmp)
+        sys.exit('%s does not read back the fights it was given' % tmp)
+    os.replace(tmp, full)
+
+
+def archive_threat(index, running, dry_run):
+    """Puts each archived log's fights next to it. Returns how many logs changed."""
+    changed = 0
+    for client, root in clients():
+        stores = list(threat_stores(root))
+        if not stores:
+            continue
+        logs = sorted((p, e) for p, e in index.items()
+                      if p.startswith(client + '/') and 'threat' not in e and e.get('start') and e.get('end'))
+        if not logs:
+            continue
+        if client_running(root, running):
+            print('skip threat on %s (the game is running, so its newest fights may not be saved yet)'
+                  % client)
+            continue
+        fights, since = threat_fights(root)
+        slack = timedelta(seconds=THREAT_SLACK)
+        for path, e in logs:
+            start, end = local(e['start']), local(e['end'])
+            if since is None or end < since:
+                continue
+            mine = [f for f in fights if start - slack <= local(f['at']) <= end + slack]
+            if dry_run:
+                print('would add %d fights to %s' % (len(mine), path))
+                continue
+            if mine:
+                tpath = threat_name(path)
+                if not os.path.exists(os.path.join(HERE, tpath)):
+                    write_threat(tpath, mine)
+                e['threat'] = threat_summary(read_threat(tpath), tpath)
+                print('threat %s: %d fights, %d readings' % (
+                    tpath, e['threat']['fights'], e['threat']['readings']))
+            else:
+                e['threat'] = {'fights': 0}
+            changed += 1
+        # Fights in the store that no archived log holds, though a later log is archived:
+        # the combat log was off. Fights after the newest archived log wait for their log.
+        windows = [(local(e['start']) - slack, local(e['end']) + slack)
+                   for p, e in index.items() if p.startswith(client + '/') and e.get('end')]
+        newest = max((b for _, b in windows), default=None)
+        orphans = [f for f in fights if newest and local(f['at']) <= newest
+                   and not any(a <= local(f['at']) <= b for a, b in windows)]
+        if orphans:
+            print('%s: %d fights fall in no combat log (was the log off?), oldest %s' % (
+                client, len(orphans), orphans[0]['at']))
+    return changed
+
+
 def load_index():
     if os.path.exists(INDEX):
         with open(INDEX, encoding='utf-8') as f:
@@ -267,21 +440,24 @@ def write_index(index):
     rows = sorted(index.items(), key=lambda kv: kv[1].get('start') or '')
     out = ['# Combat logs', '',
            'Generated by `archive.py` from index.json. One row per log, oldest first.',
-           'Zones show minutes spent, encounters show kills and wipes.', '',
+           'Zones show minutes spent, encounters show kills and wipes, threat the fights',
+           'BayovCore recorded threat in (`<log>.threat.jsonl.xz` next to the log).', '',
            'Total: %d logs, %s MB raw, %s MB compressed.' % (
                len(rows), mb(sum(e['raw_bytes'] for _, e in rows)),
                mb(sum(e['xz_bytes'] for _, e in rows))), '',
            '| file | start | hours | build | characters | zones | encounters | kills / deaths '
-           '| raw MB | xz MB |',
-           '|---|---|---|---|---|---|---|---|---|---|']
+           '| threat | raw MB | xz MB |',
+           '|---|---|---|---|---|---|---|---|---|---|---|']
     for path, e in rows:
         zones = ', '.join('%s %d' % (z, m) for z, m in list(e['zones'].items())[:6])
         kills = sum(1 for x in e['encounters'] if x['kill'])
         wipes = len(e['encounters']) - kills
         enc = ('%d kills, %d wipes' % (kills, wipes)) if e['encounters'] else ''
-        out.append('| %s | %s | %s | %s | %s | %s | %s | %d / %d | %s | %s |' % (
+        th = e.get('threat') or {}
+        threat = ('%d fight%s, %d readings' % (th['fights'], '' if th['fights'] == 1 else 's', th['readings'])) if th.get('fights') else ''
+        out.append('| %s | %s | %s | %s | %s | %s | %s | %d / %d | %s | %s | %s |' % (
             path, (e['start'] or '').replace('T', ' '), e['hours'], e['build'] or '',
-            ', '.join(e['characters']), zones, enc, e['our_kills'], e['our_deaths'],
+            ', '.join(e['characters']), zones, enc, e['our_kills'], e['our_deaths'], threat,
             mb(e['raw_bytes']), mb(e['xz_bytes'])))
     with open(os.path.join(HERE, 'INDEX.md'), 'w', encoding='utf-8') as f:
         f.write('\n'.join(out) + '\n')
@@ -322,10 +498,13 @@ def candidates(running):
 
 
 def main():
+    global GAME
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--reindex', action='store_true')
+    ap.add_argument('--game', default=GAME, help='the World of Warcraft folder')
     args = ap.parse_args()
+    GAME = args.game
     index = load_index()
     if args.reindex:
         index = {}
@@ -335,7 +514,7 @@ def main():
                 continue
             chars = our_characters(root)
             for name in sorted(os.listdir(folder)):
-                if name.endswith('.xz'):
+                if name.endswith('.txt.xz'):
                     r = Reader(chars)
                     h = hashlib.sha256()
                     size = 0
@@ -347,7 +526,10 @@ def main():
                     e = r.entry()
                     e.update({'raw_bytes': size, 'sha256': h.hexdigest(),
                               'xz_bytes': os.path.getsize(os.path.join(folder, name))})
-                    index[os.path.join(client, name)] = e
+                    path = os.path.join(client, name)
+                    if os.path.exists(os.path.join(HERE, threat_name(path))):
+                        e['threat'] = threat_summary(read_threat(threat_name(path)), threat_name(path))
+                    index[path] = e
                     print('indexed', name)
         write_index(index)
         return
@@ -361,7 +543,8 @@ def main():
         os.makedirs(os.path.join(HERE, os.path.dirname(dst)), exist_ok=True)
         index[dst] = compress(src, os.path.join(HERE, dst), our_characters(root), gz)
         write_index(index)
-    if not todo:
+    threat = archive_threat(index, running, args.dry_run)
+    if not todo and not threat:
         print('nothing new')
     elif not args.dry_run:
         write_index(index)
