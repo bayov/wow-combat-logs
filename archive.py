@@ -31,12 +31,17 @@ are 1-based places in the fight's `mobs` and `who`, and a status of -1 (with not
 it) means that player dropped off the mob's threat list. forever-sim's
 tools/combat_log/threat.py reads them against the log.
 
-A fight belongs to the log whose start and end hold its `at`. We only write a log's threat
-while its client isn't running, since the game writes BayovThreatLog.lua at logout, and
-only once: a log that got its threat (or was found to have none) is marked in the index.
-Logs that ended before the account started recording (`since` in the store) get nothing.
+Each fight belongs to one log: the one whose first and last line hold its `at`, else the
+nearest within THREAT_SLACK seconds. The game writes BayovThreatLog.lua only at logout and
+/reload, and stamps `savedAt` then, so a log's threat is written only once a store was saved
+after the log ended. That holds with the game open too. It's written once: a log that got
+its threat, or was found to have none, is marked in the index. Logs that ended before the
+account started recording (`since`) get nothing. A store that doesn't read is reported and
+leaves its client's logs for the next run. We warn when fights not archived yet are near
+the 14 days or the 20 MB the addon keeps.
 """
 import argparse
+import bisect
 import hashlib
 import json
 import lzma
@@ -280,6 +285,12 @@ def compress(src, dst, chars, gz=False):
 # =============================================================
 # Threat
 # =============================================================
+# The addon keeps 14 days and at most 20 MB (Threat.lua's keepDays and MAX_BYTES). We warn
+# a few days and a few MB before either.
+THREAT_WARN_DAYS = 10
+THREAT_WARN_BYTES = 16 * 1024 * 1024
+
+
 def threat_stores(root):
     """(account, path) of every BayovThreatLog.lua under a client's WTF folder."""
     accounts = os.path.join(root, 'WTF', 'Account')
@@ -291,18 +302,31 @@ def threat_stores(root):
             yield acct, path
 
 
+def number(v):
+    """A row's field as a number, or None when it isn't a finite one."""
+    try:
+        n = float(v)
+    except ValueError:
+        return None
+    if n != n or n in (float('inf'), float('-inf')):
+        return None
+    return int(n) if n == int(n) else n
+
+
 def parse_rows(text):
     """A fight's rows string as lists of numbers."""
-    out = []
-    for line in (text or '').split('\n'):
-        if not line:
-            continue
-        row = []
-        for v in line.split(','):
-            n = float(v)
-            row.append(int(n) if n == int(n) else n)
-        out.append(row)
-    return out
+    return [[number(v) for v in line.split(',')] for line in (text or '').split('\n') if line]
+
+
+def finite(v):
+    """A value with any non-finite float in it made None, so it writes as JSON."""
+    if isinstance(v, float) and (v != v or v in (float('inf'), float('-inf'))):
+        return None
+    if isinstance(v, dict):
+        return {k: finite(x) for k, x in v.items()}
+    if isinstance(v, list):
+        return [finite(x) for x in v]
+    return v
 
 
 def local(s):
@@ -311,26 +335,41 @@ def local(s):
     return datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f' if '.' in s else '%Y-%m-%d %H:%M:%S')
 
 
-def threat_fights(root):
-    """Every fight the client's stores hold, oldest first, and the earliest `since`."""
-    fights, since = [], None
-    for acct, path in threat_stores(root):
-        db = savedvars.read(path).get(THREAT_GLOBAL) or {}
-        if isinstance(db.get('since'), str):
-            s = local(db['since'])
-            since = s if since is None or s < since else since
-        for f in db.get('fights') or []:
-            if not isinstance(f, dict) or not isinstance(f.get('at'), str):
+class Store:
+    """What a client's BayovThreatLog.lua files hold: the fights, and when recording began and
+    the files were last saved. `bad` names the files that didn't read."""
+
+    def __init__(self, root):
+        self.fights, self.since, self.saved, self.bad, self.big = [], None, None, [], []
+        for acct, path in threat_stores(root):
+            try:
+                db = savedvars.read(path).get(THREAT_GLOBAL) or {}
+                since = local(db['since']) if isinstance(db.get('since'), str) else None
+                saved = local(db['savedAt']) if isinstance(db.get('savedAt'), str) else None
+                fights = [self.fight(acct, f) for f in db.get('fights') or []
+                          if isinstance(f, dict) and isinstance(f.get('at'), str)]
+            except (ValueError, KeyError, IndexError, TypeError) as err:
+                self.bad.append('%s (%s)' % (path, err))
                 continue
-            f = dict(f)
-            f['account'] = acct
-            f['readings'] = parse_rows(f.pop('rows', ''))
-            for k in ('who', 'mobs'):
-                if isinstance(f.get(k), dict):  # an empty Lua table
-                    f[k] = []
-            fights.append(f)
-    fights.sort(key=lambda f: f['at'])
-    return fights, since
+            if since and (self.since is None or since < self.since):
+                self.since = since
+            if saved and (self.saved is None or saved > self.saved):
+                self.saved = saved
+            if os.path.getsize(path) > THREAT_WARN_BYTES:
+                self.big.append(path)
+            self.fights += fights
+        self.fights.sort(key=lambda f: f['_at'])
+
+    @staticmethod
+    def fight(acct, f):
+        f = finite(dict(f))
+        f['account'] = acct
+        f['readings'] = parse_rows(f.pop('rows', ''))
+        for k in ('who', 'mobs'):
+            if isinstance(f.get(k), dict):  # an empty Lua table
+                f[k] = []
+        f['_at'] = local(f['at'])
+        return f
 
 
 def threat_name(log):
@@ -364,11 +403,12 @@ def read_threat(path):
 
 def write_threat(path, fights):
     """Writes the fights as JSON lines, xz-compressed, and checks it reads back the same."""
+    fights = [{k: v for k, v in f.items() if not k.startswith('_')} for f in fights]
     full = os.path.join(HERE, path)
     tmp = full + '.part'
     with lzma.open(tmp, 'wt', encoding='utf-8', preset=9) as f:
         for fight in fights:
-            f.write(json.dumps(fight, ensure_ascii=False, separators=(',', ':')) + '\n')
+            f.write(json.dumps(fight, ensure_ascii=False, separators=(',', ':'), allow_nan=False) + '\n')
     with lzma.open(tmp, 'rt', encoding='utf-8') as f:
         back = [json.loads(line) for line in f if line.strip()]
     if back != json.loads(json.dumps(fights)):
@@ -377,28 +417,66 @@ def write_threat(path, fights):
     os.replace(tmp, full)
 
 
-def archive_threat(index, running, dry_run):
+def windows(index, client):
+    """(start, end, path) of the client's archived logs, by start. A log whose end comes before
+    its start (it ran across the autumn clock change) is left out."""
+    out = []
+    for path, e in index.items():
+        if path.startswith(client + '/') and e.get('start') and e.get('end'):
+            a, b = local(e['start']), local(e['end'])
+            if b < a:
+                print('%s runs across a clock change, so no threat is matched to it' % path)
+                continue
+            out.append((a, b, path))
+    return sorted(out)
+
+
+def place(fights, wins):
+    """Each fight's log: the one that holds its `at`, else the nearest within the slack.
+    Returns {path: [fights]} and the fights no log takes."""
+    slack = timedelta(seconds=THREAT_SLACK)
+    starts = [w[0] for w in wins]
+    placed, loose = {}, []
+    for f in fights:
+        t = f['_at']
+        i = bisect.bisect_right(starts, t + slack)
+        best = None
+        # Logs that start before t + slack; only the last few can still hold t.
+        for a, b, path in reversed(wins[max(0, i - 4):i]):
+            gap = timedelta(0) if a <= t <= b else min(abs(t - a), abs(t - b))
+            if gap <= slack and (best is None or gap < best[0]):
+                best = (gap, path)
+        if best:
+            placed.setdefault(best[1], []).append(f)
+        else:
+            loose.append(f)
+    return placed, loose
+
+
+def archive_threat(index, dry_run):
     """Puts each archived log's fights next to it. Returns how many logs changed."""
     changed = 0
     for client, root in clients():
-        stores = list(threat_stores(root))
-        if not stores:
+        if not any(threat_stores(root)):
             continue
-        logs = sorted((p, e) for p, e in index.items()
-                      if p.startswith(client + '/') and 'threat' not in e and e.get('start') and e.get('end'))
-        if not logs:
+        store = Store(root)
+        for bad in store.bad:
+            print('skip threat on %s: %s does not read' % (client, bad))
+        if store.bad:
             continue
-        if client_running(root, running):
-            print('skip threat on %s (the game is running, so its newest fights may not be saved yet)'
-                  % client)
-            continue
-        fights, since = threat_fights(root)
-        slack = timedelta(seconds=THREAT_SLACK)
-        for path, e in logs:
-            start, end = local(e['start']), local(e['end'])
-            if since is None or end < since:
+        wins = windows(index, client)
+        placed, loose = place(store.fights, wins)
+        waiting = []
+        for a, b, path in wins:
+            e = index[path]
+            if 'threat' in e or store.since is None or b < store.since:
                 continue
-            mine = [f for f in fights if start - slack <= local(f['at']) <= end + slack]
+            if store.saved is None or store.saved < b:
+                # The game hasn't saved since this log ended, so its last fights may be
+                # missing. The next run after a logout or /reload takes it.
+                waiting.append(path)
+                continue
+            mine = placed.get(path, [])
             if dry_run:
                 print('would add %d fights to %s' % (len(mine), path))
                 continue
@@ -412,16 +490,29 @@ def archive_threat(index, running, dry_run):
             else:
                 e['threat'] = {'fights': 0}
             changed += 1
-        # Fights in the store that no archived log holds, though a later log is archived:
-        # the combat log was off. Fights after the newest archived log wait for their log.
-        windows = [(local(e['start']) - slack, local(e['end']) + slack)
-                   for p, e in index.items() if p.startswith(client + '/') and e.get('end')]
-        newest = max((b for _, b in windows), default=None)
-        orphans = [f for f in fights if newest and local(f['at']) <= newest
-                   and not any(a <= local(f['at']) <= b for a, b in windows)]
+        if waiting:
+            print('%s: %d logs wait for their threat until the game saves (logout or /reload)'
+                  % (client, len(waiting)))
+        # Fights no log takes, though a later log is archived: the combat log was off.
+        # Fights after the newest archived log wait for it.
+        newest = wins[-1][1] if wins else None
+        orphans = [f for f in loose if newest and f['_at'] <= newest]
         if orphans:
             print('%s: %d fights fall in no combat log (was the log off?), oldest %s' % (
                 client, len(orphans), orphans[0]['at']))
+        # Fights in no marked log yet, and how close the oldest is to aging out.
+        archived = {id(f) for p, fs in placed.items() if 'threat' in index[p] for f in fs}
+        lost = {id(f) for f in orphans}
+        unsaved = [f for f in store.fights if id(f) not in archived and id(f) not in lost]
+        if unsaved:
+            age = (datetime.now() - unsaved[0]['_at']).days
+            if age >= THREAT_WARN_DAYS:
+                print('%s: %d fights are not archived yet, the oldest %d days old. BayovCore drops '
+                      'them at 14 days: archive the logs they belong to before then.'
+                      % (client, len(unsaved), age))
+        for path in store.big:
+            print('%s is %.1f MB. BayovCore keeps at most 20 MB and drops the oldest fights past '
+                  'that, archived or not.' % (path, os.path.getsize(path) / 1e6))
     return changed
 
 
@@ -441,7 +532,8 @@ def write_index(index):
     out = ['# Combat logs', '',
            'Generated by `archive.py` from index.json. One row per log, oldest first.',
            'Zones show minutes spent, encounters show kills and wipes, threat the fights',
-           'BayovCore recorded threat in (`<log>.threat.jsonl.xz` next to the log).', '',
+           'BayovCore recorded threat in (`<log>.threat.jsonl.xz` next to the log, "none" when',
+           'it recorded none during the log).', '',
            'Total: %d logs, %s MB raw, %s MB compressed.' % (
                len(rows), mb(sum(e['raw_bytes'] for _, e in rows)),
                mb(sum(e['xz_bytes'] for _, e in rows))), '',
@@ -454,7 +546,8 @@ def write_index(index):
         wipes = len(e['encounters']) - kills
         enc = ('%d kills, %d wipes' % (kills, wipes)) if e['encounters'] else ''
         th = e.get('threat') or {}
-        threat = ('%d fight%s, %d readings' % (th['fights'], '' if th['fights'] == 1 else 's', th['readings'])) if th.get('fights') else ''
+        threat = ('%d fight%s, %d readings' % (th['fights'], '' if th['fights'] == 1 else 's', th['readings'])
+                  if th.get('fights') else 'none' if 'fights' in th else '')
         out.append('| %s | %s | %s | %s | %s | %s | %s | %d / %d | %s | %s | %s |' % (
             path, (e['start'] or '').replace('T', ' '), e['hours'], e['build'] or '',
             ', '.join(e['characters']), zones, enc, e['our_kills'], e['our_deaths'], threat,
@@ -507,30 +600,41 @@ def main():
     GAME = args.game
     index = load_index()
     if args.reindex:
-        index = {}
-        for client, root in clients():
+        if not os.path.isdir(GAME):
+            sys.exit('no game folder at %s (--game names another), which --reindex needs for '
+                     'our characters' % GAME)
+        old, index = index, {}
+        for client in sorted(os.listdir(HERE)):
             folder = os.path.join(HERE, client)
-            if not os.path.isdir(folder):
+            if not os.path.isdir(folder) or client.startswith('.'):
                 continue
-            chars = our_characters(root)
+            root = os.path.join(GAME, '_%s_' % client)
+            chars = our_characters(root) if os.path.isdir(root) else set()
             for name in sorted(os.listdir(folder)):
-                if name.endswith('.txt.xz'):
-                    r = Reader(chars)
-                    h = hashlib.sha256()
-                    size = 0
-                    with lzma.open(os.path.join(folder, name), 'rb') as f:
-                        for raw in f:
-                            h.update(raw)
-                            size += len(raw)
-                            r.line(raw.decode('utf-8', 'replace'))
-                    e = r.entry()
-                    e.update({'raw_bytes': size, 'sha256': h.hexdigest(),
-                              'xz_bytes': os.path.getsize(os.path.join(folder, name))})
-                    path = os.path.join(client, name)
-                    if os.path.exists(os.path.join(HERE, threat_name(path))):
-                        e['threat'] = threat_summary(read_threat(threat_name(path)), threat_name(path))
-                    index[path] = e
-                    print('indexed', name)
+                if not name.endswith('.txt.xz'):
+                    continue
+                path = os.path.join(client, name)
+                r = Reader(chars)
+                h = hashlib.sha256()
+                size = 0
+                with lzma.open(os.path.join(folder, name), 'rb') as f:
+                    for raw in f:
+                        h.update(raw)
+                        size += len(raw)
+                        r.line(raw.decode('utf-8', 'replace'))
+                e = r.entry()
+                e.update({'raw_bytes': size, 'sha256': h.hexdigest(),
+                          'xz_bytes': os.path.getsize(os.path.join(folder, name))})
+                was = old.get(path) or {}
+                # A client that's gone from the game folder has no character list to go by.
+                if not chars and was.get('characters'):
+                    e['characters'] = was['characters']
+                if os.path.exists(os.path.join(HERE, threat_name(path))):
+                    e['threat'] = threat_summary(read_threat(threat_name(path)), threat_name(path))
+                elif 'threat' in was:
+                    e['threat'] = was['threat']
+                index[path] = e
+                print('indexed', name)
         write_index(index)
         return
     running = running_exes()
@@ -543,7 +647,7 @@ def main():
         os.makedirs(os.path.join(HERE, os.path.dirname(dst)), exist_ok=True)
         index[dst] = compress(src, os.path.join(HERE, dst), our_characters(root), gz)
         write_index(index)
-    threat = archive_threat(index, running, args.dry_run)
+    threat = archive_threat(index, args.dry_run)
     if not todo and not threat:
         print('nothing new')
     elif not args.dry_run:

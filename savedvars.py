@@ -28,6 +28,8 @@ class LuaParser:
 
     def take(self, want=None):
         t = self.peek()
+        if t is None:
+            raise ValueError('the file ends early, expected %r' % (want or 'a value'))
         if want is not None and t != want:
             raise ValueError('expected %r at token %d, got %r' % (want, self.i, t))
         self.i += 1
@@ -43,6 +45,8 @@ class LuaParser:
 
     def value(self):
         t = self.peek()
+        if t is None:
+            raise ValueError('the file ends inside a value')
         if t == '{':
             return self.table()
         self.take()
@@ -57,7 +61,18 @@ class LuaParser:
         try:
             return int(t)
         except ValueError:
+            pass
+        try:
             return float(t)
+        except ValueError:
+            pass
+        # How the Windows C library prints what isn't a finite number: -nan(ind), 1.#INF.
+        low = t.lower()
+        if 'nan' in low or '#ind' in low or '#qnan' in low:
+            return float('nan')
+        if 'inf' in low:
+            return float('-inf') if low.startswith('-') else float('inf')
+        raise ValueError('not a value: %r' % t)
 
     def table(self):
         self.take('{')
