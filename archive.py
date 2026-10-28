@@ -23,22 +23,32 @@ in each, boss encounters with kill or wipe, and death counts.
 THREAT. The combat log has no threat in it. BayovCore's Threat module records it in game:
 the raw threat the game reports for us, our pet and two group members on every mob we fight
 (bayovui/addons/BayovCore/Modules/Threat.lua in the WoW repo). It keeps each fight in the
-account's SavedVariables/BayovThreatLog.lua for 14 days. We copy each log's fights next to
-it, as `<client>/<log>.threat.jsonl.xz`: one fight per line, a JSON object with the fight's
-fields as the addon wrote them and its rows as `readings`, each
+account's SavedVariables/BayovThreatLog.lua for `keepDays` (14 by default) and at most
+`maxBytes` (20 MB), both written in the store. That file isn't in any version control, so
+this archive is its only lasting copy. We copy each fight next to its log, as
+`<client>/<log>.threat.jsonl.xz`: one fight per line, a JSON object with the fight's fields
+as the addon wrote them and its rows as `readings`, each
 [ms since the fight's `at`, mob, who, status, scaled %, raw %, threat], where mob and who
-are 1-based places in the fight's `mobs` and `who`, and a status of -1 (with nothing after
-it) means that player dropped off the mob's threat list. forever-sim's
-tools/combat_log/threat.py reads them against the log.
+are 1-based places in the fight's `mobs` and `who`, a status of -1 (with nothing after it)
+means that player dropped off the mob's threat list, and a value that wasn't a finite number
+is null. forever-sim's tools/combat_log/threat.py reads them against the log.
 
-Each fight belongs to one log: the one whose first and last line hold its `at`, else the
-nearest within THREAT_SLACK seconds. The game writes BayovThreatLog.lua only at logout and
-/reload, and stamps `savedAt` then, so a log's threat is written only once a store was saved
-after the log ended. That holds with the game open too. It's written once: a log that got
-its threat, or was found to have none, is marked in the index. Logs that ended before the
-account started recording (`since`) get nothing. A store that doesn't read is reported and
-leaves its client's logs for the next run. We warn when fights not archived yet are near
-the 14 days or the 20 MB the addon keeps.
+A fight is in the store only once it has ended and the game saved it (logout or /reload),
+so every fight we read is whole. threat.json lists the fights we have archived, by account
+and start, and each run archives only the others:
+
+- A fight goes to the log that holds its `at`, else the nearest within THREAT_SLACK sec.
+  The log's first file is <log>.threat.jsonl.xz; fights that come later (a second account
+  saved after the first run) go in <log>.threat.2.jsonl.xz and on. Files are never
+  rewritten.
+- A fight near or after the end of the newest archived log waits while the game folder has
+  a log not archived yet, since that log may be the one that holds it.
+- A fight no log holds though a later log is archived was played with the combat log off.
+  It goes to <client>/unlogged/<date>.threat.jsonl.xz.
+
+A store that doesn't read is reported, and the others are still archived. We warn when a
+fight not archived yet is within 4 days of `keepDays`, or a store passes 80% of `maxBytes`.
+--reindex rebuilds threat.json and each log's threat counts from the threat files.
 """
 import argparse
 import bisect
@@ -65,6 +75,7 @@ THREAT_STORE = 'BayovThreatLog.lua'
 THREAT_GLOBAL = 'BayovThreatLogDB'
 # How far outside a log's first and last line a fight's start may be and still be its.
 THREAT_SLACK = 5
+LEDGER = os.path.join(HERE, 'threat.json')
 QUIET_SECONDS = 30 * 60
 LOG_NAME = re.compile(r'^(Split-)?WoWCombatLog-.*\.txt$')
 
@@ -153,6 +164,9 @@ class Reader:
     def __init__(self, chars):
         self.chars = chars
         self.first = self.last = None
+        # The earliest and latest line, which aren't the first and last across the
+        # autumn clock change.
+        self.lo = self.hi = None
         self.lines = 0
         self.build = self.version = None
         self.zone = None
@@ -178,6 +192,8 @@ class Reader:
         if self.first is None:
             self.first = t
         self.last = t
+        self.lo = t if self.lo is None or t < self.lo else self.lo
+        self.hi = t if self.hi is None or t > self.hi else self.hi
         rest = raw.split('  ', 1)[1].rstrip('\r\n')
         event = rest.split(',', 1)[0]
         if event in ('COMBAT_LOG_VERSION', 'ZONE_CHANGE', 'ENCOUNTER_START', 'ENCOUNTER_END',
@@ -226,7 +242,10 @@ class Reader:
         return {
             'start': iso(self.first),
             'end': iso(self.last),
-            'hours': round((self.last - self.first) / 3600, 2) if self.first else 0,
+            'span': [iso(self.lo), iso(self.hi)],
+            # Across the autumn change the last line's time is an hour behind.
+            'hours': round((self.last - self.first + (3600 if self.last < self.first else 0)) / 3600, 2)
+            if self.first else 0,
             'build': self.build,
             'log_version': self.version,
             'lines': self.lines,
@@ -285,10 +304,12 @@ def compress(src, dst, chars, gz=False):
 # =============================================================
 # Threat
 # =============================================================
-# The addon keeps 14 days and at most 20 MB (Threat.lua's keepDays and MAX_BYTES). We warn
-# a few days and a few MB before either.
-THREAT_WARN_DAYS = 10
-THREAT_WARN_BYTES = 16 * 1024 * 1024
+# What the addon keeps when its store doesn't say (Threat.lua's keepDays and MAX_BYTES).
+THREAT_KEEP_DAYS = 14
+THREAT_MAX_BYTES = 20 * 1024 * 1024
+# How long before a fight ages out, and at what share of the size cap, we warn.
+THREAT_WARN_DAYS = 4
+THREAT_WARN_SHARE = 0.8
 
 
 def threat_stores(root):
@@ -335,28 +356,30 @@ def local(s):
     return datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f' if '.' in s else '%Y-%m-%d %H:%M:%S')
 
 
+def fight_key(f):
+    return '%s|%s' % (f.get('account'), f.get('at'))
+
+
 class Store:
-    """What a client's BayovThreatLog.lua files hold: the fights, and when recording began and
-    the files were last saved. `bad` names the files that didn't read."""
+    """The fights a client's BayovThreatLog.lua files hold, with each store's limits. `bad`
+    names the files that didn't read; the others are read all the same."""
 
     def __init__(self, root):
-        self.fights, self.since, self.saved, self.bad, self.big = [], None, None, [], []
+        self.fights, self.bad, self.stores = [], [], []
         for acct, path in threat_stores(root):
             try:
                 db = savedvars.read(path).get(THREAT_GLOBAL) or {}
-                since = local(db['since']) if isinstance(db.get('since'), str) else None
-                saved = local(db['savedAt']) if isinstance(db.get('savedAt'), str) else None
+                if not isinstance(db, dict):
+                    raise ValueError('BayovThreatLogDB is not a table')
                 fights = [self.fight(acct, f) for f in db.get('fights') or []
                           if isinstance(f, dict) and isinstance(f.get('at'), str)]
-            except (ValueError, KeyError, IndexError, TypeError) as err:
+            except (ValueError, KeyError, IndexError, TypeError, AttributeError) as err:
                 self.bad.append('%s (%s)' % (path, err))
                 continue
-            if since and (self.since is None or since < self.since):
-                self.since = since
-            if saved and (self.saved is None or saved > self.saved):
-                self.saved = saved
-            if os.path.getsize(path) > THREAT_WARN_BYTES:
-                self.big.append(path)
+            keep = db.get('keepDays') if isinstance(db.get('keepDays'), (int, float)) else THREAT_KEEP_DAYS
+            cap = db.get('maxBytes') if isinstance(db.get('maxBytes'), (int, float)) else THREAT_MAX_BYTES
+            self.stores.append({'account': acct, 'path': path, 'keep': keep, 'cap': cap,
+                                'bytes': os.path.getsize(path)})
             self.fights += fights
         self.fights.sort(key=lambda f: f['_at'])
 
@@ -364,20 +387,46 @@ class Store:
     def fight(acct, f):
         f = finite(dict(f))
         f['account'] = acct
-        f['readings'] = parse_rows(f.pop('rows', ''))
+        rows = f.pop('rows', '')
+        f['readings'] = parse_rows(rows if isinstance(rows, str) else '')
         for k in ('who', 'mobs'):
-            if isinstance(f.get(k), dict):  # an empty Lua table
+            if not isinstance(f.get(k), list):  # an empty Lua table, or nothing
                 f[k] = []
         f['_at'] = local(f['at'])
         return f
 
 
-def threat_name(log):
-    """The threat file next to an archived log: X.txt.xz -> X.threat.jsonl.xz."""
-    return log[:-len('.txt.xz')] + '.threat.jsonl.xz'
+def threat_base(log):
+    """X.txt.xz -> X, the stem of the log's threat files."""
+    return log[:-len('.txt.xz')]
 
 
-def threat_summary(fights, path):
+def threat_files(log):
+    """The threat files next to an archived log, first one first."""
+    base = threat_base(log)
+    folder, stem = os.path.split(os.path.join(HERE, base))
+    if not os.path.isdir(folder):
+        return []
+    found = []
+    for name in os.listdir(folder):
+        m = re.fullmatch(re.escape(os.path.basename(stem)) + r'\.threat(?:\.(\d+))?\.jsonl\.xz', name)
+        if m:
+            found.append((int(m.group(1) or 1), os.path.join(os.path.dirname(base), name)))
+    return [p for _, p in sorted(found)]
+
+
+def free_name(stem):
+    """<stem>.threat.jsonl.xz, or .threat.2.jsonl.xz and on when that one exists."""
+    n = 1
+    while True:
+        path = stem + ('.threat.jsonl.xz' if n == 1 else '.threat.%d.jsonl.xz' % n)
+        if not os.path.exists(os.path.join(HERE, path)):
+            return path
+        n += 1
+
+
+def threat_summary(paths):
+    fights = [f for p in paths for f in read_threat(p)]
     others = []
     for f in fights:
         for w in f.get('who') or []:
@@ -387,12 +436,12 @@ def threat_summary(fights, path):
                     others.append(label)
     return {
         'fights': len(fights),
-        'readings': sum(len(f['readings']) for f in fights),
+        'readings': sum(len(f.get('readings') or []) for f in fights),
         'mobs': len({m.get('guid') for f in fights for m in f.get('mobs') or []}),
         'hidden': sum(f.get('secret') or 0 for f in fights),
         'others': others,
-        'file': os.path.basename(path),
-        'xz_bytes': os.path.getsize(os.path.join(HERE, path)),
+        'files': [os.path.basename(p) for p in paths],
+        'xz_bytes': sum(os.path.getsize(os.path.join(HERE, p)) for p in paths),
     }
 
 
@@ -405,6 +454,7 @@ def write_threat(path, fights):
     """Writes the fights as JSON lines, xz-compressed, and checks it reads back the same."""
     fights = [{k: v for k, v in f.items() if not k.startswith('_')} for f in fights]
     full = os.path.join(HERE, path)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
     tmp = full + '.part'
     with lzma.open(tmp, 'wt', encoding='utf-8', preset=9) as f:
         for fight in fights:
@@ -417,103 +467,158 @@ def write_threat(path, fights):
     os.replace(tmp, full)
 
 
+def load_ledger():
+    if os.path.exists(LEDGER):
+        with open(LEDGER, encoding='utf-8') as f:
+            return json.load(f)
+    return {}
+
+
+def write_json(path, value):
+    """Writes JSON through a temporary file, so a crash never leaves half a file."""
+    tmp = path + '.part'
+    with open(tmp, 'w', encoding='utf-8') as f:
+        json.dump(value, f, indent=1, ensure_ascii=False, sort_keys=True)
+        f.write('\n')
+    os.replace(tmp, path)
+
+
+def window(e):
+    """A log's (earliest, latest) line, as naive local times."""
+    if e.get('span') and all(e['span']):
+        return local(e['span'][0]), local(e['span'][1])
+    a, b = local(e['start']), local(e['end'])
+    if b < a:
+        # Logged before 'span' existed, across the autumn change: the repeated hour.
+        return b - timedelta(hours=1), a + timedelta(hours=1)
+    return a, b
+
+
 def windows(index, client):
-    """(start, end, path) of the client's archived logs, by start. A log whose end comes before
-    its start (it ran across the autumn clock change) is left out."""
-    out = []
-    for path, e in index.items():
-        if path.startswith(client + '/') and e.get('start') and e.get('end'):
-            a, b = local(e['start']), local(e['end'])
-            if b < a:
-                print('%s runs across a clock change, so no threat is matched to it' % path)
-                continue
-            out.append((a, b, path))
-    return sorted(out)
+    """(earliest, latest, path) of the client's archived logs, by earliest."""
+    return sorted(window(e) + (p,) for p, e in index.items()
+                  if p.startswith(client + '/') and e.get('start') and e.get('end'))
 
 
-def place(fights, wins):
-    """Each fight's log: the one that holds its `at`, else the nearest within the slack.
-    Returns {path: [fights]} and the fights no log takes."""
+def place(t, wins, starts, reach):
+    """The log for a fight at t: the one that holds it, else the nearest within the slack.
+    `reach[i]` is the latest end among wins[:i+1], so the scan back stops where no earlier
+    log can reach t."""
     slack = timedelta(seconds=THREAT_SLACK)
-    starts = [w[0] for w in wins]
-    placed, loose = {}, []
-    for f in fights:
-        t = f['_at']
-        i = bisect.bisect_right(starts, t + slack)
-        best = None
-        # Logs that start before t + slack; only the last few can still hold t.
-        for a, b, path in reversed(wins[max(0, i - 4):i]):
-            gap = timedelta(0) if a <= t <= b else min(abs(t - a), abs(t - b))
-            if gap <= slack and (best is None or gap < best[0]):
-                best = (gap, path)
-        if best:
-            placed.setdefault(best[1], []).append(f)
-        else:
-            loose.append(f)
-    return placed, loose
+    best = None
+    i = bisect.bisect_right(starts, t + slack) - 1
+    while i >= 0 and reach[i] >= t - slack:
+        a, b, path = wins[i]
+        gap = timedelta(0) if a <= t <= b else min(abs(t - a), abs(t - b))
+        if gap <= slack and (best is None or gap < best[0]):
+            best = (gap, path)
+        i -= 1
+    return best[1] if best else None
+
+
+def unarchived_logs(root, index, client):
+    """Whether the client's game folder has a combat log that isn't archived yet."""
+    logs = os.path.join(root, 'Logs')
+    if not os.path.isdir(logs):
+        return False
+    return any(LOG_NAME.match(n) and os.path.join(client, n + '.xz') not in index
+               for n in os.listdir(logs))
 
 
 def archive_threat(index, dry_run):
-    """Puts each archived log's fights next to it. Returns how many logs changed."""
-    changed = 0
+    """Archives the fights threat.json doesn't list yet. Returns how many files it wrote."""
+    ledger = load_ledger()
+    written = 0
+    now = datetime.now()
     for client, root in clients():
         if not any(threat_stores(root)):
             continue
         store = Store(root)
         for bad in store.bad:
-            print('skip threat on %s: %s does not read' % (client, bad))
-        if store.bad:
-            continue
+            print('threat on %s: %s does not read, so its fights wait' % (client, bad))
+        done = ledger.setdefault(client, {})
         wins = windows(index, client)
-        placed, loose = place(store.fights, wins)
-        waiting = []
-        for a, b, path in wins:
-            e = index[path]
-            if 'threat' in e or store.since is None or b < store.since:
+        starts = [w[0] for w in wins]
+        reach, top = [], None
+        for a, b, _ in wins:
+            top = b if top is None or b > top else top
+            reach.append(top)
+        newest = top
+        pending = unarchived_logs(root, index, client)
+        slack = timedelta(seconds=THREAT_SLACK)
+        to_log, unlogged, waiting = {}, {}, []
+        for f in store.fights:
+            if fight_key(f) in done:
                 continue
-            if store.saved is None or store.saved < b:
-                # The game hasn't saved since this log ended, so its last fights may be
-                # missing. The next run after a logout or /reload takes it.
-                waiting.append(path)
+            t = f['_at']
+            if newest is None or (pending and t >= newest - slack):
+                waiting.append(f)
                 continue
-            mine = placed.get(path, [])
-            if dry_run:
-                print('would add %d fights to %s' % (len(mine), path))
-                continue
-            if mine:
-                tpath = threat_name(path)
-                if not os.path.exists(os.path.join(HERE, tpath)):
-                    write_threat(tpath, mine)
-                e['threat'] = threat_summary(read_threat(tpath), tpath)
-                print('threat %s: %d fights, %d readings' % (
-                    tpath, e['threat']['fights'], e['threat']['readings']))
+            path = place(t, wins, starts, reach)
+            if path:
+                to_log.setdefault(path, []).append(f)
+            elif t < newest - slack:
+                unlogged.setdefault(f['at'][:10], []).append(f)
             else:
-                e['threat'] = {'fights': 0}
-            changed += 1
+                waiting.append(f)
+        writes = [(free_name(threat_base(p)), fs, p) for p, fs in sorted(to_log.items())]
+        writes += [(free_name(os.path.join(client, 'unlogged', day)), fs, None)
+                   for day, fs in sorted(unlogged.items())]
+        for path, fs, log in writes:
+            if dry_run:
+                print('would write %d fights to %s' % (len(fs), path))
+                written += 1
+                continue
+            write_threat(path, fs)
+            for f in fs:
+                done[fight_key(f)] = path
+            if log:
+                index[log]['threat'] = threat_summary(threat_files(log))
+            print('threat %s: %d fights, %d readings%s' % (
+                path, len(fs), sum(len(f['readings']) for f in fs),
+                '' if log else ' (no combat log holds them)'))
+            written += 1
         if waiting:
-            print('%s: %d logs wait for their threat until the game saves (logout or /reload)'
-                  % (client, len(waiting)))
-        # Fights no log takes, though a later log is archived: the combat log was off.
-        # Fights after the newest archived log wait for it.
-        newest = wins[-1][1] if wins else None
-        orphans = [f for f in loose if newest and f['_at'] <= newest]
-        if orphans:
-            print('%s: %d fights fall in no combat log (was the log off?), oldest %s' % (
-                client, len(orphans), orphans[0]['at']))
-        # Fights in no marked log yet, and how close the oldest is to aging out.
-        archived = {id(f) for p, fs in placed.items() if 'threat' in index[p] for f in fs}
-        lost = {id(f) for f in orphans}
-        unsaved = [f for f in store.fights if id(f) not in archived and id(f) not in lost]
-        if unsaved:
-            age = (datetime.now() - unsaved[0]['_at']).days
-            if age >= THREAT_WARN_DAYS:
-                print('%s: %d fights are not archived yet, the oldest %d days old. BayovCore drops '
-                      'them at 14 days: archive the logs they belong to before then.'
-                      % (client, len(unsaved), age))
-        for path in store.big:
-            print('%s is %.1f MB. BayovCore keeps at most 20 MB and drops the oldest fights past '
-                  'that, archived or not.' % (path, os.path.getsize(path) / 1e6))
-    return changed
+            print('%s: %d fights wait for a combat log not archived yet' % (client, len(waiting)))
+        # Anything not archived by now ages out of the store unseen if it waits too long.
+        left = [f for f in store.fights if fight_key(f) not in done]
+        for st in store.stores:
+            mine = [f for f in left if f['account'] == st['account']]
+            if mine:
+                age = (now - mine[0]['_at']).total_seconds() / 86400
+                if age >= st['keep'] - THREAT_WARN_DAYS:
+                    print('%s: %d fights not archived yet, the oldest %.0f days old. BayovCore drops '
+                          'them at %s days. They wait for their combat log to be archived, which '
+                          'happens once the game no longer writes to it.'
+                          % (st['path'], len(mine), age, st['keep']))
+            if st['bytes'] > THREAT_WARN_SHARE * st['cap']:
+                print('%s is %.1f MB. BayovCore drops its oldest fights past %.0f MB, archived or '
+                      'not.' % (st['path'], st['bytes'] / 1e6, st['cap'] / 1e6))
+    if written and not dry_run:
+        write_json(LEDGER, ledger)
+    return written
+
+
+def rebuild_ledger(index):
+    """threat.json and each log's threat counts, from the threat files on disk."""
+    ledger = {}
+    for client in sorted(os.listdir(HERE)):
+        folder = os.path.join(HERE, client)
+        if not os.path.isdir(folder) or client.startswith('.'):
+            continue
+        for d, _, names in os.walk(folder):
+            for name in sorted(names):
+                if name.endswith('.jsonl.xz') and '.threat.' in name:
+                    path = os.path.relpath(os.path.join(d, name), HERE)
+                    for f in read_threat(path):
+                        ledger.setdefault(client, {})[fight_key(f)] = path
+    for path, e in index.items():
+        files = threat_files(path)
+        if files:
+            e['threat'] = threat_summary(files)
+        else:
+            e.pop('threat', None)
+    write_json(LEDGER, ledger)
 
 
 def load_index():
@@ -524,16 +629,18 @@ def load_index():
 
 
 def write_index(index):
-    with open(INDEX, 'w', encoding='utf-8') as f:
+    tmp = INDEX + '.part'
+    with open(tmp, 'w', encoding='utf-8') as f:
         json.dump(dict(sorted(index.items())), f, indent=1, ensure_ascii=False)
         f.write('\n')
+    os.replace(tmp, INDEX)
     mb = lambda b: '%.1f' % (b / 1e6)
     rows = sorted(index.items(), key=lambda kv: kv[1].get('start') or '')
     out = ['# Combat logs', '',
            'Generated by `archive.py` from index.json. One row per log, oldest first.',
            'Zones show minutes spent, encounters show kills and wipes, threat the fights',
-           'BayovCore recorded threat in (`<log>.threat.jsonl.xz` next to the log, "none" when',
-           'it recorded none during the log).', '',
+           'BayovCore recorded threat in (`<log>.threat*.jsonl.xz` next to the log). Fights',
+           'with no combat log are in `<client>/unlogged/`.', '',
            'Total: %d logs, %s MB raw, %s MB compressed.' % (
                len(rows), mb(sum(e['raw_bytes'] for _, e in rows)),
                mb(sum(e['xz_bytes'] for _, e in rows))), '',
@@ -547,7 +654,7 @@ def write_index(index):
         enc = ('%d kills, %d wipes' % (kills, wipes)) if e['encounters'] else ''
         th = e.get('threat') or {}
         threat = ('%d fight%s, %d readings' % (th['fights'], '' if th['fights'] == 1 else 's', th['readings'])
-                  if th.get('fights') else 'none' if 'fights' in th else '')
+                  if th.get('fights') else '')
         out.append('| %s | %s | %s | %s | %s | %s | %s | %d / %d | %s | %s | %s |' % (
             path, (e['start'] or '').replace('T', ' '), e['hours'], e['build'] or '',
             ', '.join(e['characters']), zones, enc, e['our_kills'], e['our_deaths'], threat,
@@ -626,15 +733,15 @@ def main():
                 e.update({'raw_bytes': size, 'sha256': h.hexdigest(),
                           'xz_bytes': os.path.getsize(os.path.join(folder, name))})
                 was = old.get(path) or {}
-                # A client that's gone from the game folder has no character list to go by.
+                # A client that's gone from the game folder has no character list to go by,
+                # so what we counted for our characters stays as it was.
                 if not chars and was.get('characters'):
-                    e['characters'] = was['characters']
-                if os.path.exists(os.path.join(HERE, threat_name(path))):
-                    e['threat'] = threat_summary(read_threat(threat_name(path)), threat_name(path))
-                elif 'threat' in was:
-                    e['threat'] = was['threat']
+                    for k in ('characters', 'our_kills', 'our_deaths'):
+                        if k in was:
+                            e[k] = was[k]
                 index[path] = e
                 print('indexed', name)
+        rebuild_ledger(index)
         write_index(index)
         return
     running = running_exes()
