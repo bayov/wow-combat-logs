@@ -932,6 +932,62 @@
   "xz_bytes": 468,
   "sha256": "6d802ba29665c0d90b6829651b7172d59d4f513a0cc1529897a333e91ecd742e"
  },
+ "classic_beta/WoWCombatLog-102226_143139.txt.xz": {
+  "start": "2026-10-22T14:31:39",
+  "end": "2026-10-23T00:00:52",
+  "span": [
+   "2026-10-22T14:31:39",
+   "2026-10-23T00:00:52"
+  ],
+  "hours": 9.49,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 44070,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 763,
+  "zones": {
+   "Durotar": 385,
+   "Orgrimmar": 184
+  },
+  "encounters": [],
+  "creatures_died": 69,
+  "our_kills": 2,
+  "our_deaths": 2,
+  "raw_bytes": 11208000,
+  "xz_bytes": 536608,
+  "sha256": "5bbe38b7aa0feb666206a8b4340751d840c0c23cd4703b9dcbe573674f269eac"
+ },
+ "classic_beta/WoWCombatLog-102326_002846.txt.xz": {
+  "start": "2026-10-23T00:28:46",
+  "end": "2026-10-23T20:00:16",
+  "span": [
+   "2026-10-23T00:28:46",
+   "2026-10-23T20:00:16"
+  ],
+  "hours": 19.52,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 97735,
+  "characters": [
+   "Bayov-Oom-ClassicBetaPvE2-"
+  ],
+  "players_seen": 1612,
+  "zones": {
+   "Undercity": 566,
+   "Orgrimmar": 501,
+   "Durotar": 91,
+   "Tirisfal Glades": 14
+  },
+  "encounters": [],
+  "creatures_died": 193,
+  "our_kills": 1,
+  "our_deaths": 13,
+  "raw_bytes": 24320600,
+  "xz_bytes": 1161284,
+  "sha256": "6135b1981116cc117e9f0f6d0d868650bc77df57248496f37bb4bf16983e0f7e"
+ },
  "classic_era/WoWCombatLog-071126_111443.txt.xz": {
   "start": "2026-07-11T11:14:43",
   "end": "2026-07-11T11:36:27",
@@ -1144,5 +1200,124 @@
   "raw_bytes": 31577773,
   "xz_bytes": 1764588,
   "sha256": "0aeb64cfa5b91a78675752d6229e5127c0f1acbb6d7f13e5787bf63101c573a2"
+ },
+ "forever/WoWCombatLog-110526_011432.txt.xz": {
+  "start": "2026-11-05T01:14:32",
+  "end": "2026-11-05T10:48:21",
+  "span": [
+   "2026-11-05T01:14:32",
+   "2026-11-05T10:48:21"
+  ],
+  "hours": 9.56,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 243807,
+  "characters": [
+   "Bayov-Oom-PvP-EU"
+  ],
+  "players_seen": 1022,
+  "zones": {
+   "Durotar": 257,
+   "The Barrens": 150,
+   "Orgrimmar": 70,
+   "Ruins of Lordaeron": 38,
+   "Ragefire Chasm": 32,
+   "Tirisfal Glades": 16,
+   "Undercity": 11
+  },
+  "encounters": [
+   {
+    "name": "Oggleflint",
+    "id": 2732,
+    "kill": true,
+    "start": "2026-11-05T06:40:44",
+    "seconds": 26
+   },
+   {
+    "name": "Taragaman the Hungerer",
+    "id": 2733,
+    "kill": false,
+    "start": "2026-11-05T06:48:58",
+    "seconds": 38
+   },
+   {
+    "name": "Taragaman the Hungerer",
+    "id": 2733,
+    "kill": true,
+    "start": "2026-11-05T06:53:53",
+    "seconds": 41
+   },
+   {
+    "name": "Bazzalan",
+    "id": 2735,
+    "kill": true,
+    "start": "2026-11-05T07:02:01",
+    "seconds": 21
+   },
+   {
+    "name": "Jergosh the Invoker",
+    "id": 2734,
+    "kill": true,
+    "start": "2026-11-05T07:08:33",
+    "seconds": 42
+   },
+   {
+    "name": "Witherfang",
+    "id": 3353,
+    "kill": true,
+    "start": "2026-11-05T10:14:42",
+    "seconds": 30
+   },
+   {
+    "name": "The Butcher",
+    "id": 3355,
+    "kill": true,
+    "start": "2026-11-05T10:20:41",
+    "seconds": 39
+   },
+   {
+    "name": "The Abandoned",
+    "id": 3357,
+    "kill": true,
+    "start": "2026-11-05T10:30:37",
+    "seconds": 22
+   },
+   {
+    "name": "Bjork",
+    "id": 3412,
+    "kill": true,
+    "start": "2026-11-05T10:34:41",
+    "seconds": 38
+   },
+   {
+    "name": "Rath'mael",
+    "id": 3354,
+    "kill": true,
+    "start": "2026-11-05T10:42:08",
+    "seconds": 42
+   }
+  ],
+  "creatures_died": 3309,
+  "our_kills": 631,
+  "our_deaths": 9,
+  "raw_bytes": 67201061,
+  "xz_bytes": 3647516,
+  "sha256": "ecce750b4c20bf2ab04a834e655796c3e912b8c7667ce25072884f57904638cc",
+  "threat": {
+   "fights": 23,
+   "readings": 49,
+   "mobs": 24,
+   "hidden": 254,
+   "others": [
+    "Ganzarut (warrior)",
+    "El (warrior)",
+    "Xd (hunter)",
+    "Zup (priest)"
+   ],
+   "files": [
+    "WoWCombatLog-110526_011432.threat.jsonl.xz"
+   ],
+   "xz_bytes": 2068
+  }
  }
 }

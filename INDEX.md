@@ -5,7 +5,7 @@ Zones show minutes spent, encounters show kills and wipes, threat the fights
 BayovCore recorded threat in (`<log>.threat*.jsonl.xz` next to the log). Fights
 with no combat log are in `<client>/unlogged/`.
 
-Total: 31 logs, 873.1 MB raw, 41.5 MB compressed.
+Total: 34 logs, 975.8 MB raw, 46.8 MB compressed.
 
 | file | start | hours | build | characters | zones | encounters | kills / deaths | threat | raw MB | xz MB |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -40,3 +40,6 @@ Total: 31 logs, 873.1 MB raw, 41.5 MB compressed.
 | forever/WoWCombatLog-102126_205408.txt.xz | 2026-10-21 20:54:08 | 7.01 | 1.60.1 | Bayov-Oom-CAMWOWEU5Realm2PvP-EU | Durotar 305, Orgrimmar 67, Ragefire Chasm 40, The Barrens 9 | 4 kills, 0 wipes | 478 / 8 |  | 31.6 | 1.8 |
 | classic_beta/WoWCombatLog-102226_133848.txt.xz | 2026-10-22 13:38:48 | 0.85 | 1.60.1 |  | Durotar 51 |  | 0 / 0 |  | 0.4 | 0.0 |
 | classic_beta/WoWCombatLog-102226_143041.txt.xz | 2026-10-22 14:30:41 | 0.0 | 1.60.1 |  |  |  | 0 / 0 |  | 0.0 | 0.0 |
+| classic_beta/WoWCombatLog-102226_143139.txt.xz | 2026-10-22 14:31:39 | 9.49 | 1.60.1 | Bayov-Oom-ClassicBetaPvE2- | Durotar 385, Orgrimmar 184 |  | 2 / 2 |  | 11.2 | 0.5 |
+| classic_beta/WoWCombatLog-102326_002846.txt.xz | 2026-10-23 00:28:46 | 19.52 | 1.60.1 | Bayov-Oom-ClassicBetaPvE2- | Undercity 566, Orgrimmar 501, Durotar 91, Tirisfal Glades 14 |  | 1 / 13 |  | 24.3 | 1.2 |
+| forever/WoWCombatLog-110526_011432.txt.xz | 2026-11-05 01:14:32 | 9.56 | 1.60.1 | Bayov-Oom-PvP-EU | Durotar 257, The Barrens 150, Orgrimmar 70, Ruins of Lordaeron 38, Ragefire Chasm 32, Tirisfal Glades 16 | 9 kills, 1 wipes | 631 / 9 | 23 fights, 49 readings | 67.2 | 3.6 |
