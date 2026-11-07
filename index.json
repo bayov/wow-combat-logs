@@ -1319,5 +1319,240 @@
    ],
    "xz_bytes": 2068
   }
+ },
+ "forever/WoWCombatLog-110526_104935.txt.xz": {
+  "start": "2026-11-05T10:49:35",
+  "end": "2026-11-05T20:19:48",
+  "span": [
+   "2026-11-05T10:49:35",
+   "2026-11-05T20:19:48"
+  ],
+  "hours": 9.5,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 135790,
+  "characters": [
+   "Bayov-Oom-PvP-EU"
+  ],
+  "players_seen": 514,
+  "zones": {
+   "The Barrens": 197,
+   "Hillsbrad Foothills": 134,
+   "Wailing Caverns": 75,
+   "The Wailing Caverns": 46,
+   "Silverpine Forest": 31,
+   "Undercity": 25,
+   "Orgrimmar": 19,
+   "Thunder Bluff": 17,
+   "Mulgore": 8,
+   "Ruins of Lordaeron": 7,
+   "Hillsbrad": 5,
+   "Tirisfal Glades": 5
+  },
+  "encounters": [
+   {
+    "name": "Viktor the Vile",
+    "id": 3411,
+    "kill": true,
+    "start": "2026-11-05T10:51:44",
+    "seconds": 52
+   },
+   {
+    "name": "Lord Cobrahn",
+    "id": 586,
+    "kill": true,
+    "start": "2026-11-05T14:39:41",
+    "seconds": 17
+   },
+   {
+    "name": "Kresh",
+    "id": 587,
+    "kill": true,
+    "start": "2026-11-05T14:41:11",
+    "seconds": 13
+   },
+   {
+    "name": "Lord Pythas",
+    "id": 588,
+    "kill": true,
+    "start": "2026-11-05T14:53:58",
+    "seconds": 40
+   },
+   {
+    "name": "Skum",
+    "id": 589,
+    "kill": true,
+    "start": "2026-11-05T15:02:46",
+    "seconds": 28
+   },
+   {
+    "name": "Lord Serpentis",
+    "id": 590,
+    "kill": true,
+    "start": "2026-11-05T15:09:43",
+    "seconds": 23
+   },
+   {
+    "name": "Verdan the Everliving",
+    "id": 591,
+    "kill": true,
+    "start": "2026-11-05T15:10:45",
+    "seconds": 33
+   },
+   {
+    "name": "Lady Anacondra",
+    "id": 585,
+    "kill": true,
+    "start": "2026-11-05T15:16:16",
+    "seconds": 33
+   },
+   {
+    "name": "Mutanus the Devourer",
+    "id": 592,
+    "kill": true,
+    "start": "2026-11-05T15:25:59",
+    "seconds": 43
+   },
+   {
+    "name": "Lady Anacondra",
+    "id": 585,
+    "kill": true,
+    "start": "2026-11-05T15:42:00",
+    "seconds": 24
+   }
+  ],
+  "creatures_died": 1143,
+  "our_kills": 504,
+  "our_deaths": 6,
+  "raw_bytes": 37609906,
+  "xz_bytes": 2005224,
+  "sha256": "aeb222182ce15567c44a8b38bd109b1c4de53373c11112f8d8f834631a88948f",
+  "threat": {
+   "fights": 33,
+   "readings": 90,
+   "mobs": 35,
+   "hidden": 716,
+   "others": [
+    "Jinzy (druid)",
+    "Larry (warlock)",
+    "Knugas (shaman)",
+    "Psy (shaman)",
+    "Lippe (paladin)",
+    "Arret (druid)"
+   ],
+   "files": [
+    "WoWCombatLog-110526_104935.threat.jsonl.xz"
+   ],
+   "xz_bytes": 2664
+  }
+ },
+ "forever/WoWCombatLog-110626_054743.txt.xz": {
+  "start": "2026-11-06T05:47:43",
+  "end": "2026-11-06T10:37:36",
+  "span": [
+   "2026-11-06T05:47:43",
+   "2026-11-06T10:37:36"
+  ],
+  "hours": 4.83,
+  "build": "1.60.1",
+  "log_version": "22",
+  "lines": 84988,
+  "characters": [
+   "Bayov-Oom-PvP-EU"
+  ],
+  "players_seen": 600,
+  "zones": {
+   "The Barrens": 83,
+   "Orgrimmar": 45,
+   "Ashenvale": 36,
+   "Shadowfang Keep": 29,
+   "Stonetalon Mountains": 28,
+   "Silverpine Forest": 15,
+   "Undercity": 15,
+   "Hillsbrad Foothills": 10,
+   "Thunder Bluff": 9,
+   "Westfall": 6,
+   "Tirisfal Glades": 4,
+   "Mulgore": 4,
+   "Dustwallow Marsh": 3,
+   "Stranglethorn Vale": 2
+  },
+  "encounters": [
+   {
+    "name": "Rethilgore",
+    "id": 2748,
+    "kill": true,
+    "start": "2026-11-06T06:18:19",
+    "seconds": 15
+   },
+   {
+    "name": "Razorclaw the Butcher",
+    "id": 2749,
+    "kill": true,
+    "start": "2026-11-06T06:23:42",
+    "seconds": 19
+   },
+   {
+    "name": "Baron Silverlaine",
+    "id": 2750,
+    "kill": true,
+    "start": "2026-11-06T06:26:22",
+    "seconds": 15
+   },
+   {
+    "name": "Commander Springvale",
+    "id": 2751,
+    "kill": true,
+    "start": "2026-11-06T06:29:04",
+    "seconds": 36
+   },
+   {
+    "name": "Odo the Blindwatcher",
+    "id": 2752,
+    "kill": true,
+    "start": "2026-11-06T06:31:11",
+    "seconds": 25
+   },
+   {
+    "name": "Fenrus the Devourer",
+    "id": 2753,
+    "kill": true,
+    "start": "2026-11-06T06:37:51",
+    "seconds": 16
+   },
+   {
+    "name": "Wolf Master Nandos",
+    "id": 2754,
+    "kill": true,
+    "start": "2026-11-06T06:41:16",
+    "seconds": 26
+   },
+   {
+    "name": "Archmage Arugal",
+    "id": 2755,
+    "kill": true,
+    "start": "2026-11-06T06:42:55",
+    "seconds": 35
+   }
+  ],
+  "creatures_died": 560,
+  "our_kills": 197,
+  "our_deaths": 2,
+  "raw_bytes": 22646660,
+  "xz_bytes": 1182992,
+  "sha256": "37000a926c5028f02e1170b55a97894ca18451eaa8f56d730ecf82eee1508a14",
+  "threat": {
+   "fights": 24,
+   "readings": 42,
+   "mobs": 24,
+   "hidden": 294,
+   "others": [
+    "Gaer (paladin)"
+   ],
+   "files": [
+    "WoWCombatLog-110626_054743.threat.jsonl.xz"
+   ],
+   "xz_bytes": 1692
+  }
  }
 }

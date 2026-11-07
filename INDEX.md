@@ -5,7 +5,7 @@ Zones show minutes spent, encounters show kills and wipes, threat the fights
 BayovCore recorded threat in (`<log>.threat*.jsonl.xz` next to the log). Fights
 with no combat log are in `<client>/unlogged/`.
 
-Total: 34 logs, 975.8 MB raw, 46.8 MB compressed.
+Total: 36 logs, 1036.1 MB raw, 50.0 MB compressed.
 
 | file | start | hours | build | characters | zones | encounters | kills / deaths | threat | raw MB | xz MB |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -43,3 +43,5 @@ Total: 34 logs, 975.8 MB raw, 46.8 MB compressed.
 | classic_beta/WoWCombatLog-102226_143139.txt.xz | 2026-10-22 14:31:39 | 9.49 | 1.60.1 | Bayov-Oom-ClassicBetaPvE2- | Durotar 385, Orgrimmar 184 |  | 2 / 2 |  | 11.2 | 0.5 |
 | classic_beta/WoWCombatLog-102326_002846.txt.xz | 2026-10-23 00:28:46 | 19.52 | 1.60.1 | Bayov-Oom-ClassicBetaPvE2- | Undercity 566, Orgrimmar 501, Durotar 91, Tirisfal Glades 14 |  | 1 / 13 |  | 24.3 | 1.2 |
 | forever/WoWCombatLog-110526_011432.txt.xz | 2026-11-05 01:14:32 | 9.56 | 1.60.1 | Bayov-Oom-PvP-EU | Durotar 257, The Barrens 150, Orgrimmar 70, Ruins of Lordaeron 38, Ragefire Chasm 32, Tirisfal Glades 16 | 9 kills, 1 wipes | 631 / 9 | 23 fights, 49 readings | 67.2 | 3.6 |
+| forever/WoWCombatLog-110526_104935.txt.xz | 2026-11-05 10:49:35 | 9.5 | 1.60.1 | Bayov-Oom-PvP-EU | The Barrens 197, Hillsbrad Foothills 134, Wailing Caverns 75, The Wailing Caverns 46, Silverpine Forest 31, Undercity 25 | 10 kills, 0 wipes | 504 / 6 | 33 fights, 90 readings | 37.6 | 2.0 |
+| forever/WoWCombatLog-110626_054743.txt.xz | 2026-11-06 05:47:43 | 4.83 | 1.60.1 | Bayov-Oom-PvP-EU | The Barrens 83, Orgrimmar 45, Ashenvale 36, Shadowfang Keep 29, Stonetalon Mountains 28, Silverpine Forest 15 | 8 kills, 0 wipes | 197 / 2 | 24 fights, 42 readings | 22.6 | 1.2 |
